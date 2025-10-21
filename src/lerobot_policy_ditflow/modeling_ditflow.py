@@ -17,10 +17,9 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F  # noqa: N812
 
-from lerobot.constants import OBS_ENV_STATE, OBS_ROBOT, ACTION, OBS_IMAGES
+from lerobot.utils.constants import OBS_ENV_STATE, OBS_STATE, ACTION, OBS_IMAGES
 from lerobot.policies.diffusion.modeling_diffusion import DiffusionRgbEncoder
-from lerobot.policies.dit_flow.configuration_dit_flow import DiTFlowConfig
-from lerobot.policies.normalize import Normalize, Unnormalize
+from lerobot_policy_ditflow.configuration_ditflow import DiTFlowConfig
 from lerobot.policies.pretrained import PreTrainedPolicy
 from lerobot.policies.utils import (
     get_device_from_parameters,
@@ -45,7 +44,9 @@ def modulate(x: torch.Tensor, shift: torch.Tensor, scale: torch.Tensor) -> torch
 
 
 class _TimeNetwork(nn.Module):
-    def __init__(self, frequency_embedding_dim, hidden_dim, learnable_w=False, max_period=1000):
+    def __init__(
+        self, frequency_embedding_dim, hidden_dim, learnable_w=False, max_period=1000
+    ):
         assert frequency_embedding_dim % 2 == 0, "time_dim must be even!"
         half_dim = int(frequency_embedding_dim // 2)
         super().__init__()
@@ -101,7 +102,9 @@ class _ZeroScaleMod(nn.Module):
 
 
 class _DiTDecoder(nn.Module):
-    def __init__(self, d_model=256, nhead=6, dim_feedforward=2048, dropout=0.0, activation="gelu"):
+    def __init__(
+        self, d_model=256, nhead=6, dim_feedforward=2048, dropout=0.0, activation="gelu"
+    ):
         super().__init__()
         self.self_attn = nn.MultiheadAttention(d_model, nhead, dropout=dropout)
         # Implementation of Feedforward model
@@ -159,7 +162,9 @@ class _FinalLayer(nn.Module):
         super().__init__()
         self.norm_final = nn.LayerNorm(hidden_size, elementwise_affine=False, eps=1e-6)
         self.linear = nn.Linear(hidden_size, out_size, bias=True)
-        self.adaLN_modulation = nn.Sequential(nn.SiLU(), nn.Linear(hidden_size, 2 * hidden_size, bias=True))
+        self.adaLN_modulation = nn.Sequential(
+            nn.SiLU(), nn.Linear(hidden_size, 2 * hidden_size, bias=True)
+        )
 
     def forward(self, x, t, cond):
         # process the conditioning vector first
@@ -178,7 +183,9 @@ class _FinalLayer(nn.Module):
 class _TransformerDecoder(nn.Module):
     def __init__(self, base_module, num_layers):
         super().__init__()
-        self.layers = nn.ModuleList([copy.deepcopy(base_module) for _ in range(num_layers)])
+        self.layers = nn.ModuleList(
+            [copy.deepcopy(base_module) for _ in range(num_layers)]
+        )
         self.reset_parameters()
 
     def forward(self, src, t, cond, **kwargs):
@@ -260,14 +267,20 @@ class _DiTNoiseNet(nn.Module):
         self.clip_sample = clip_sample
         self.clip_sample_range = clip_sample_range
 
-        print("Number of flow params: {:.2f}M".format(sum(p.numel() for p in self.parameters()) / 1e6))
+        print(
+            "Number of flow params: {:.2f}M".format(
+                sum(p.numel() for p in self.parameters()) / 1e6
+            )
+        )
 
     def forward(self, noisy_actions, time, global_cond, need_weights=False):
         c = self.cond_proj(global_cond)
         time_enc = self.time_net(time)
 
         ac_tokens = self.ac_proj(noisy_actions)  # [B, T, adim] -> [B, T, hidden_dim]
-        ac_tokens = ac_tokens.transpose(0, 1)  # [B, T, hidden_dim] -> [T, B, hidden_dim]
+        ac_tokens = ac_tokens.transpose(
+            0, 1
+        )  # [B, T, hidden_dim] -> [T, B, hidden_dim]
 
         # Allow variable length action chunks
         dec_in = ac_tokens + self.dec_pos[: ac_tokens.size(0)]  # [T, B, hidden_dim]
@@ -276,19 +289,27 @@ class _DiTNoiseNet(nn.Module):
         dec_out = self.decoder(dec_in, time_enc, c, need_weights=need_weights)
 
         # apply final epsilon prediction layer
-        eps_out = self.eps_out(dec_out, time_enc, c)  # [T, B, hidden_dim] -> [T, B, adim]
+        eps_out = self.eps_out(
+            dec_out, time_enc, c
+        )  # [T, B, hidden_dim] -> [T, B, adim]
         return eps_out.transpose(0, 1)  # [T, B, adim] -> [B, T, adim]
 
     @torch.no_grad()
     def sample(
-        self, condition: torch.Tensor, timesteps: int = 100, generator: torch.Generator | None = None
+        self,
+        condition: torch.Tensor,
+        timesteps: int = 100,
+        generator: torch.Generator | None = None,
     ) -> torch.Tensor:
         # Use Euler integration to solve the ODE.
         batch_size, device = condition.shape[0], condition.device
         x_0 = self.sample_noise(batch_size, device, generator)
         dt = 1.0 / timesteps
         t_all = (
-            torch.arange(timesteps, device=device).float().unsqueeze(0).expand(batch_size, timesteps)
+            torch.arange(timesteps, device=device)
+            .float()
+            .unsqueeze(0)
+            .expand(batch_size, timesteps)
             / timesteps
         )
 
@@ -299,8 +320,12 @@ class _DiTNoiseNet(nn.Module):
                 x_0 = torch.clamp(x_0, -self.clip_sample_range, self.clip_sample_range)
         return x_0
 
-    def sample_noise(self, batch_size: int, device, generator: torch.Generator | None = None) -> torch.Tensor:
-        return torch.randn(batch_size, self.ac_chunk, self.ac_dim, device=device, generator=generator)
+    def sample_noise(
+        self, batch_size: int, device, generator: torch.Generator | None = None
+    ) -> torch.Tensor:
+        return torch.randn(
+            batch_size, self.ac_chunk, self.ac_dim, device=device, generator=generator
+        )
 
 
 class DiTFlowPolicy(PreTrainedPolicy):
@@ -328,14 +353,6 @@ class DiTFlowPolicy(PreTrainedPolicy):
         config.validate_features()
         self.config = config
 
-        self.normalize_inputs = Normalize(config.input_features, config.normalization_mapping, dataset_stats)
-        self.normalize_targets = Normalize(
-            config.output_features, config.normalization_mapping, dataset_stats
-        )
-        self.unnormalize_outputs = Unnormalize(
-            config.output_features, config.normalization_mapping, dataset_stats
-        )
-
         # queues are populated during rollout of the policy, they contain the n latest observations and actions
         self._queues = None
 
@@ -355,7 +372,9 @@ class DiTFlowPolicy(PreTrainedPolicy):
         if self.config.image_features:
             self._queues["observation.images"] = deque(maxlen=self.config.n_obs_steps)
         if self.config.env_state_feature:
-            self._queues["observation.environment_state"] = deque(maxlen=self.config.n_obs_steps)
+            self._queues["observation.environment_state"] = deque(
+                maxlen=self.config.n_obs_steps
+            )
 
     @torch.no_grad()
     def predict_action_chunk(self, batch: dict[str, torch.Tensor]) -> torch.Tensor:
@@ -367,9 +386,6 @@ class DiTFlowPolicy(PreTrainedPolicy):
 
         # batch = {k: torch.stack(list(self._queues[k]), dim=1) for k in batch if k in self._queues}
         actions = self.dit_flow.generate_actions(batch)
-
-        # TODO(rcadene): make above methods return output dictionary?
-        actions = self.unnormalize_outputs({ACTION: actions})[ACTION]
 
         return actions
 
@@ -395,10 +411,13 @@ class DiTFlowPolicy(PreTrainedPolicy):
         "horizon" may not the best name to describe what the variable actually means, because this period is
         actually measured from the first observation which (if `n_obs_steps` > 1) happened in the past.
         """
-        batch = self.normalize_inputs(batch)
         if self.config.image_features:
-            batch = dict(batch)  # shallow copy so that adding a key doesn't modify the original
-            batch[OBS_IMAGES] = torch.stack([batch[key] for key in self.config.image_features], dim=-4)
+            batch = dict(
+                batch
+            )  # shallow copy so that adding a key doesn't modify the original
+            batch[OBS_IMAGES] = torch.stack(
+                [batch[key] for key in self.config.image_features], dim=-4
+            )
         # Note: It's important that this happens after stacking the images into a single key.
         self._queues = populate_queues(self._queues, batch)
 
@@ -411,13 +430,13 @@ class DiTFlowPolicy(PreTrainedPolicy):
 
     def forward(self, batch: dict[str, torch.Tensor]) -> dict[str, torch.Tensor]:
         """Run the batch through the model and compute the loss for training or validation."""
-        batch = self.normalize_inputs(batch)
         if self.config.image_features:
-            batch = dict(batch)  # shallow copy so that adding a key doesn't modify the original
+            batch = dict(
+                batch
+            )  # shallow copy so that adding a key doesn't modify the original
             batch["observation.images"] = torch.stack(
                 [batch[key] for key in self.config.image_features], dim=-4
             )
-        batch = self.normalize_targets(batch)
         loss = self.dit_flow.compute_loss(batch)
         return loss, None
 
@@ -428,7 +447,11 @@ class DiTFlowModel(nn.Module):
         self.config = config
 
         # Build observation encoders (depending on which observations are provided).
-        global_cond_dim = self.config.robot_state_feature.shape[0] if self.config.use_proprioceptive else 0
+        global_cond_dim = (
+            self.config.robot_state_feature.shape[0]
+            if self.config.use_proprioceptive
+            else 0
+        )
 
         if self.config.image_features:
             num_images = len(self.config.image_features)
@@ -475,7 +498,9 @@ class DiTFlowModel(nn.Module):
                 concentration1=1.5,  # alpha
                 concentration0=1.0,  # beta
             )
-            affine_transform = torch.distributions.transforms.AffineTransform(loc=s, scale=-s)
+            affine_transform = torch.distributions.transforms.AffineTransform(
+                loc=s, scale=-s
+            )
             self.noise_distribution = torch.distributions.TransformedDistribution(
                 beta_dist, [affine_transform]
             )
@@ -494,7 +519,9 @@ class DiTFlowModel(nn.Module):
 
         # Expand global conditioning to the batch size.
         if global_cond is not None:
-            global_cond = global_cond.expand(batch_size, -1).to(device=device, dtype=dtype)
+            global_cond = global_cond.expand(batch_size, -1).to(
+                device=device, dtype=dtype
+            )
 
         # Sample prior.
         sample = self.velocity_net.sample(
@@ -502,10 +529,12 @@ class DiTFlowModel(nn.Module):
         )
         return sample
 
-    def _prepare_global_conditioning(self, batch: dict[str, torch.Tensor]) -> torch.Tensor:
+    def _prepare_global_conditioning(
+        self, batch: dict[str, torch.Tensor]
+    ) -> torch.Tensor:
         """Encode image features and concatenate them all together along with the state vector."""
-        batch_size, n_obs_steps = batch[OBS_ROBOT].shape[:2]
-        robot_state = batch[OBS_ROBOT]
+        batch_size, n_obs_steps = batch[OBS_STATE].shape[:2]
+        robot_state = batch[OBS_STATE]
         if len(robot_state.shape) == 4:
             robot_state = robot_state[:, :, 0, ...]
         global_cond_feats = [robot_state] if self.config.use_proprioceptive else []
@@ -522,21 +551,31 @@ class DiTFlowModel(nn.Module):
                 img_features_list = torch.cat(
                     [
                         encoder(images)
-                        for encoder, images in zip(self.rgb_encoder, images_per_camera, strict=True)
+                        for encoder, images in zip(
+                            self.rgb_encoder, images_per_camera, strict=True
+                        )
                     ]
                 )
                 # Separate batch and sequence dims back out. The camera index dim gets absorbed into the
                 # feature dim (effectively concatenating the camera features).
                 img_features = einops.rearrange(
-                    img_features_list, "(n b s) ... -> b s (n ...)", b=batch_size, s=n_obs_steps
+                    img_features_list,
+                    "(n b s) ... -> b s (n ...)",
+                    b=batch_size,
+                    s=n_obs_steps,
                 )
             else:
                 # Combine batch, sequence, and "which camera" dims before passing to shared encoder.
-                img_features = self.rgb_encoder(einops.rearrange(images, "b s n ... -> (b s n) ..."))
+                img_features = self.rgb_encoder(
+                    einops.rearrange(images, "b s n ... -> (b s n) ...")
+                )
                 # Separate batch dim and sequence dim back out. The camera index dim gets absorbed into the
                 # feature dim (effectively concatenating the camera features).
                 img_features = einops.rearrange(
-                    img_features, "(b s n) ... -> b s (n ...)", b=batch_size, s=n_obs_steps
+                    img_features,
+                    "(b s n) ... -> b s (n ...)",
+                    b=batch_size,
+                    s=n_obs_steps,
                 )
             global_cond_feats.append(img_features)
 
@@ -603,12 +642,18 @@ class DiTFlowModel(nn.Module):
         # Sample noise to add to the trajectory.
         noise = self.velocity_net.sample_noise(trajectory.shape[0], trajectory.device)
         # Sample a random noising timestep for each item in the batch.
-        timesteps = self.noise_distribution.sample((trajectory.shape[0],)).to(trajectory.device)
+        timesteps = self.noise_distribution.sample((trajectory.shape[0],)).to(
+            trajectory.device
+        )
         # Add noise to the clean trajectories according to the noise magnitude at each timestep.
-        noisy_trajectory = (1 - timesteps[:, None, None]) * noise + timesteps[:, None, None] * trajectory
+        noisy_trajectory = (1 - timesteps[:, None, None]) * noise + timesteps[
+            :, None, None
+        ] * trajectory
 
         # Run the denoising network (that might denoise the trajectory, or attempt to predict the noise).
-        pred = self.velocity_net(noisy_actions=noisy_trajectory, time=timesteps, global_cond=global_cond)
+        pred = self.velocity_net(
+            noisy_actions=noisy_trajectory, time=timesteps, global_cond=global_cond
+        )
         target = trajectory - noise
         loss = F.mse_loss(pred, target, reduction="none")
 
