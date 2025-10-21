@@ -389,7 +389,7 @@ class DiTFlowPolicy(PreTrainedPolicy):
 
         return actions
 
-    @torch.no_grad
+    @torch.no_grad()
     def select_action(self, batch: dict[str, torch.Tensor]) -> torch.Tensor:
         """Select a single action given environment observations.
 
