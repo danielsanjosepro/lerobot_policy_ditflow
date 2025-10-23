@@ -1,2 +1,3 @@
 # pixi environments
 .pixi
+src/lerobot_policy_ditflow/__pycache__

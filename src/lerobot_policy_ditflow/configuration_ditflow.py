@@ -115,8 +115,10 @@ class DiTFlowConfig(PreTrainedConfig):
     # Architecture / modeling.
     # Vision backbone.
     vision_backbone: str = "resnet18"
-    crop_shape: tuple[int, int] | None = None
-    crop_is_random: bool = False
+
+    crop_shape: tuple[int, int] | None = (84, 84)
+    crop_is_random: bool = True
+
     pretrained_backbone_weights: str | None = None
     use_group_norm: bool = True
     spatial_softmax_num_keypoints: int = 32
