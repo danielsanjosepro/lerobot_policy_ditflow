@@ -17,7 +17,12 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F  # noqa: N812
 
-from lerobot.utils.constants import OBS_ENV_STATE, OBS_STATE, ACTION, OBS_IMAGES
+from lerobot.utils.constants import (
+    OBS_ENV_STATE,
+    OBS_STATE,
+    ACTION,
+    OBS_IMAGES,
+)
 from lerobot.policies.diffusion.modeling_diffusion import DiffusionRgbEncoder
 from lerobot_policy_ditflow.configuration_ditflow import DiTFlowConfig
 from lerobot.policies.pretrained import PreTrainedPolicy
@@ -370,7 +375,7 @@ class DiTFlowPolicy(PreTrainedPolicy):
             "action": deque(maxlen=self.config.n_action_steps),
         }
         if self.config.image_features:
-            self._queues["observation.images"] = deque(maxlen=self.config.n_obs_steps)
+            self._queues[OBS_IMAGES] = deque(maxlen=self.config.n_obs_steps)
         if self.config.env_state_feature:
             self._queues["observation.environment_state"] = deque(
                 maxlen=self.config.n_obs_steps
@@ -380,11 +385,11 @@ class DiTFlowPolicy(PreTrainedPolicy):
     def predict_action_chunk(self, batch: dict[str, torch.Tensor]) -> torch.Tensor:
         """Predict a chunk of actions given environment observations."""
         # stack n latest observations from the queue
-        for key in batch:
-            if key in self._queues:
-                batch[key] = torch.stack(list(self._queues[key]), dim=1)
-
-        # batch = {k: torch.stack(list(self._queues[k]), dim=1) for k in batch if k in self._queues}
+        batch = {
+            k: torch.stack(list(self._queues[k]), dim=1)
+            for k in batch
+            if k in self._queues
+        }
         actions = self.dit_flow.generate_actions(batch)
 
         return actions
@@ -411,6 +416,10 @@ class DiTFlowPolicy(PreTrainedPolicy):
         "horizon" may not the best name to describe what the variable actually means, because this period is
         actually measured from the first observation which (if `n_obs_steps` > 1) happened in the past.
         """
+        # NOTE: for offline evaluation, we have action in the batch, so we need to pop it out
+        if ACTION in batch:
+            batch.pop(ACTION)
+
         if self.config.image_features:
             batch = dict(
                 batch
@@ -418,10 +427,11 @@ class DiTFlowPolicy(PreTrainedPolicy):
             batch[OBS_IMAGES] = torch.stack(
                 [batch[key] for key in self.config.image_features], dim=-4
             )
-        # Note: It's important that this happens after stacking the images into a single key.
+
+        # NOTE: It's important that this happens after stacking the images into a single key.
         self._queues = populate_queues(self._queues, batch)
 
-        if len(self._queues["action"]) == 0:
+        if len(self._queues[ACTION]) == 0:
             actions = self.predict_action_chunk(batch)
             self._queues[ACTION].extend(actions.transpose(0, 1))
 
@@ -534,20 +544,14 @@ class DiTFlowModel(nn.Module):
     ) -> torch.Tensor:
         """Encode image features and concatenate them all together along with the state vector."""
         batch_size, n_obs_steps = batch[OBS_STATE].shape[:2]
-        robot_state = batch[OBS_STATE]
-        if len(robot_state.shape) == 4:
-            robot_state = robot_state[:, :, 0, ...]
-        global_cond_feats = [robot_state] if self.config.use_proprioceptive else []
+        global_cond_feats = [batch[OBS_STATE]]
         # Extract image features.
         if self.config.image_features:
-            images = batch["observation.images"]
-            if len(images.shape) == 7:
-                images = images[:, :, 0, ...]
-
             if self.config.use_separate_rgb_encoder_per_camera:
                 # Combine batch and sequence dims while rearranging to make the camera index dimension first.
-                images_per_camera = einops.rearrange(images, "b s n ... -> n (b s) ...")
-
+                images_per_camera = einops.rearrange(
+                    batch[OBS_IMAGES], "b s n ... -> n (b s) ..."
+                )
                 img_features_list = torch.cat(
                     [
                         encoder(images)
@@ -567,7 +571,7 @@ class DiTFlowModel(nn.Module):
             else:
                 # Combine batch, sequence, and "which camera" dims before passing to shared encoder.
                 img_features = self.rgb_encoder(
-                    einops.rearrange(images, "b s n ... -> (b s n) ...")
+                    einops.rearrange(batch[OBS_IMAGES], "b s n ... -> (b s n) ...")
                 )
                 # Separate batch dim and sequence dim back out. The camera index dim gets absorbed into the
                 # feature dim (effectively concatenating the camera features).
