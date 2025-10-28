@@ -427,7 +427,6 @@ class DiTFlowPolicy(PreTrainedPolicy):
             batch[OBS_IMAGES] = torch.stack(
                 [batch[key] for key in self.config.image_features], dim=-4
             )
-
         # NOTE: It's important that this happens after stacking the images into a single key.
         self._queues = populate_queues(self._queues, batch)
 
