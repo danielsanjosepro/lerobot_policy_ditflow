@@ -1,3 +1,6 @@
 # pixi environments
 .pixi
 src/lerobot_policy_ditflow/__pycache__
+outputs/*
+config
+scripts/train.sh

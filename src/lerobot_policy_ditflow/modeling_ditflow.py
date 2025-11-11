@@ -543,7 +543,11 @@ class DiTFlowModel(nn.Module):
     ) -> torch.Tensor:
         """Encode image features and concatenate them all together along with the state vector."""
         batch_size, n_obs_steps = batch[OBS_STATE].shape[:2]
-        global_cond_feats = [batch[OBS_STATE]]
+        global_cond_feats = (
+            [batch[OBS_STATE]]
+            if self.config.use_proprioceptive and self.config.robot_state_feature
+            else []
+        )
         # Extract image features.
         if self.config.image_features:
             if self.config.use_separate_rgb_encoder_per_camera:
@@ -599,7 +603,9 @@ class DiTFlowModel(nn.Module):
             "observation.environment_state": (B, environment_dim)
         }
         """
-        batch_size, n_obs_steps = batch["observation.state"].shape[:2]
+        # Use an available input feature to extract batch size and n_obs_steps.
+        available_input_feature_key = list(self.config.input_features.keys())[0]
+        batch_size, n_obs_steps = batch[available_input_feature_key].shape[:2]
         assert n_obs_steps == self.config.n_obs_steps
 
         # Encode image features and concatenate them all together along with the state vector.
