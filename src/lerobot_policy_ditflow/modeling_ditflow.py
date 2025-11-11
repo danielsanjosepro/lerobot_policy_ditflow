@@ -458,7 +458,7 @@ class DiTFlowModel(nn.Module):
         # Build observation encoders (depending on which observations are provided).
         global_cond_dim = (
             self.config.robot_state_feature.shape[0]
-            if self.config.use_proprioceptive
+            if self.config.use_proprioceptive and self.config.robot_state_feature
             else 0
         )
 

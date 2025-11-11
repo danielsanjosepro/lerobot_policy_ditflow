@@ -150,6 +150,8 @@ class DiTFlowConfig(PreTrainedConfig):
     scheduler_name: str = "cosine"
     scheduler_warmup_steps: int = 500
 
+    features_to_exclude: list[str] = field(default_factory=lambda: [])
+
     def __post_init__(self):
         super().__post_init__()
 
@@ -179,6 +181,18 @@ class DiTFlowConfig(PreTrainedConfig):
         )
 
     def validate_features(self) -> None:
+        for feature_to_exclude in self.features_to_exclude:
+            if feature_to_exclude in self.input_features:
+                del self.input_features[feature_to_exclude]
+            elif feature_to_exclude in self.output_features:
+                del self.output_features[feature_to_exclude]
+            else:
+                raise ValueError(
+                    f"Feature '{feature_to_exclude}' not found in input or output features."
+                    f" Available input features: {list(self.input_features.keys())}. "
+                    f"Available output features: {list(self.output_features.keys())}."
+                )
+
         if len(self.image_features) == 0 and self.env_state_feature is None:
             raise ValueError(
                 "You must provide at least one image or the environment state among the inputs."
