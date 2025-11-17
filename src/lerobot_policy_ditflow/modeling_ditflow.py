@@ -10,6 +10,7 @@
 
 import copy
 from collections import deque
+import logging
 
 import einops
 import numpy as np
@@ -31,6 +32,8 @@ from lerobot.policies.utils import (
     get_dtype_from_parameters,
     populate_queues,
 )
+
+logger = logging.getLogger(__name__)
 
 
 def _get_activation_fn(activation: str):
@@ -272,7 +275,7 @@ class _DiTNoiseNet(nn.Module):
         self.clip_sample = clip_sample
         self.clip_sample_range = clip_sample_range
 
-        print(
+        logger.info(
             "Number of flow params: {:.2f}M".format(
                 sum(p.numel() for p in self.parameters()) / 1e6
             )
@@ -370,29 +373,35 @@ class DiTFlowPolicy(PreTrainedPolicy):
 
     def reset(self):
         """Clear observation and action queues. Should be called on `env.reset()`"""
-        self._queues = {
-            "observation.state": deque(maxlen=self.config.n_obs_steps),
-            "action": deque(maxlen=self.config.n_action_steps),
-        }
-        if self.config.image_features:
-            self._queues[OBS_IMAGES] = deque(maxlen=self.config.n_obs_steps)
-        if self.config.env_state_feature:
-            self._queues["observation.environment_state"] = deque(
-                maxlen=self.config.n_obs_steps
-            )
+        self._queues = {}
+        for input_feature in self.config.input_features.keys():
+            self._queues[input_feature] = deque(maxlen=self.config.n_obs_steps)
+        for output_feature in self.config.output_features.keys():
+            self._queues[output_feature] = deque(maxlen=self.config.n_action_steps)
+        self._queues["observation.images"] = deque(
+            maxlen=self.config.n_obs_steps
+        )  # for stacking image observations
 
     @torch.no_grad()
     def predict_action_chunk(self, batch: dict[str, torch.Tensor]) -> torch.Tensor:
         """Predict a chunk of actions given environment observations."""
-        # stack n latest observations from the queue
-        batch = {
+        batch = self.stack_queues_of_observations_to_batch(batch)
+        actions = self.dit_flow.generate_actions(batch)
+        return actions
+
+    @torch.no_grad()
+    def stack_queues_of_observations_to_batch(
+        self, batch: dict[str, torch.Tensor]
+    ) -> dict[str, torch.Tensor]:
+        """Stack the n latest observations from the queues into the batch dictionary.
+
+        This method assumes that the queues have already been populated with enough observations.
+        """
+        return {
             k: torch.stack(list(self._queues[k]), dim=1)
             for k in batch
             if k in self._queues
         }
-        actions = self.dit_flow.generate_actions(batch)
-
-        return actions
 
     @torch.no_grad()
     def select_action(self, batch: dict[str, torch.Tensor]) -> torch.Tensor:
@@ -604,8 +613,7 @@ class DiTFlowModel(nn.Module):
         }
         """
         # Use an available input feature to extract batch size and n_obs_steps.
-        available_input_feature_key = list(self.config.input_features.keys())[0]
-        batch_size, n_obs_steps = batch[available_input_feature_key].shape[:2]
+        batch_size, n_obs_steps = batch[OBS_STATE].shape[:2]
         assert n_obs_steps == self.config.n_obs_steps
 
         # Encode image features and concatenate them all together along with the state vector.
@@ -637,7 +645,7 @@ class DiTFlowModel(nn.Module):
         """
         # Input validation.
         assert set(batch).issuperset({"observation.state", "action", "action_is_pad"})
-        assert "observation.images" in batch or "observation.environment_state" in batch
+        # assert "observation.images" in batch or "observation.environment_state" in batch
         n_obs_steps = batch["observation.state"].shape[1]
         horizon = batch["action"].shape[1]
         assert horizon == self.config.horizon

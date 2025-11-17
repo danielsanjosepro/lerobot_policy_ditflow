@@ -20,6 +20,7 @@ from lerobot.optim.optimizers import AdamConfig
 from lerobot.optim.schedulers import DiffuserSchedulerConfig
 from lerobot.configs.policies import PreTrainedConfig
 from lerobot.configs.types import NormalizationMode
+from lerobot.utils.constants import ACTION
 
 
 @PreTrainedConfig.register_subclass("ditflow")
@@ -152,6 +153,9 @@ class DiTFlowConfig(PreTrainedConfig):
 
     features_to_exclude: list[str] = field(default_factory=lambda: [])
 
+    # NOTE: if you set features to include, features_to_exclude is ignored.
+    features_to_include: list[str] | None = None
+
     def __post_init__(self):
         super().__post_init__()
 
@@ -181,6 +185,31 @@ class DiTFlowConfig(PreTrainedConfig):
         )
 
     def validate_features(self) -> None:
+        if self.features_to_include is not None:
+            assert ACTION in self.features_to_include, (
+                f"`{ACTION}` must be included in `features_to_include`. Got {self.features_to_include}."
+            )
+            for feature in self.features_to_include:
+                if (
+                    feature not in self.input_features
+                    and feature not in self.output_features
+                ):
+                    raise ValueError(
+                        f"Feature '{feature}' in `features_to_include` not found in input or output features."
+                        f" Available input features: {list(self.input_features.keys())}. "
+                        f"Available output features: {list(self.output_features.keys())}."
+                    )
+
+            # Create features_to_exclude from features_to_include
+            all_features = list(self.input_features.keys()) + list(
+                self.output_features.keys()
+            )
+            self.features_to_exclude = [
+                feature
+                for feature in all_features
+                if feature not in self.features_to_include
+            ]
+
         for feature_to_exclude in self.features_to_exclude:
             if feature_to_exclude in self.input_features:
                 del self.input_features[feature_to_exclude]
@@ -193,10 +222,10 @@ class DiTFlowConfig(PreTrainedConfig):
                     f"Available output features: {list(self.output_features.keys())}."
                 )
 
-        if len(self.image_features) == 0 and self.env_state_feature is None:
-            raise ValueError(
-                "You must provide at least one image or the environment state among the inputs."
-            )
+        # if len(self.image_features) == 0 and self.env_state_feature is None:
+        #     raise ValueError(
+        #         "You must provide at least one image or the environment state among the inputs."
+        #     )
 
         if self.crop_shape is not None:
             for key, image_ft in self.image_features.items():
@@ -211,12 +240,13 @@ class DiTFlowConfig(PreTrainedConfig):
                     )
 
         # Check that all input images have the same shape.
-        first_image_key, first_image_ft = next(iter(self.image_features.items()))
-        for key, image_ft in self.image_features.items():
-            if image_ft.shape != first_image_ft.shape:
-                raise ValueError(
-                    f"`{key}` does not match `{first_image_key}`, but we expect all image shapes to match."
-                )
+        if len(self.image_features) > 0:
+            first_image_key, first_image_ft = next(iter(self.image_features.items()))
+            for key, image_ft in self.image_features.items():
+                if image_ft.shape != first_image_ft.shape:
+                    raise ValueError(
+                        f"`{key}` does not match `{first_image_key}`, but we expect all image shapes to match."
+                    )
 
     @property
     def observation_delta_indices(self) -> list:
