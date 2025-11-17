@@ -133,7 +133,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/python_abi-3.13-8_cp313.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/re2-2025.08.12-h5301d42_1.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/readline-8.2-h8c095d6_2.conda
-      - conda: https://conda.anaconda.org/conda-forge/linux-64/rerun-sdk-0.24.1-py313h68dd597_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/rerun-sdk-0.21.0-py313h3a0df0f_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/s2n-1.5.26-h5ac9029_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/six-1.17.0-pyhe01879c_1.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/snappy-1.2.2-h03e3b7b_0.conda
@@ -149,32 +149,33 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/linux-64/xorg-libxdmcp-1.1.5-hb9d3cd8_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/zlib-1.3.1-hb9d3cd8_2.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/zstd-1.5.7-hb8e6e7a_2.conda
-      - pypi: https://files.pythonhosted.org/packages/77/85/85951bc0f9843e2c10baaa1b6657227056095de08f4d1eea7d8b423a6832/accelerate-1.11.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/0f/15/5bf3b99495fb160b63f95972b81750f18f7f4e02ad051373b669d17d44f2/aiohappyeyeballs-2.6.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/cc/e6/33d305e6cce0a8daeb79c7d8d6547d6e5f27f4e35fa4883fc9c9eb638596/aiohttp-3.13.1-cp313-cp313-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/fb/76/641ae371508676492379f16e2fa48f4e2c11741bd63c48be4b12a6b09cba/aiosignal-1.4.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/78/b6/6307fbef88d9b5ee7421e68d78a9f162e0da4900bc5f5793f6d3d0e34fb8/annotated_types-0.7.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/d7/97/2c4e0288ad4359b6064cb06ae79c2ff3a84ac73d27e91f2161b75fcd86fa/av-15.1.0-cp313-cp313-manylinux_2_28_x86_64.whl
+      - pypi: https://files.pythonhosted.org/packages/10/cb/f2ad4230dc2eb1a74edf38f1a38b9b52277f75bef262d8908e60d957e13c/blinker-1.9.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/e4/37/af0d2ef3967ac0d6113837b44a4f0bfe1328c2b9763bd5b1744520e5cfed/certifi-2025.10.5-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/98/df/0a1755e750013a2081e863e7cd37e0cdd02664372c754e5560099eb7aa44/cffi-2.0.0-cp313-cp313-manylinux2014_x86_64.manylinux_2_17_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/f5/83/6ab5883f57c9c801ce5e5677242328aa45592be8a00644310a008d04f922/charset_normalizer-3.4.4-cp313-cp313-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/db/d3/9dcc0f5797f070ec8edf30fbadfb200e71d9db6b84d211e3b2085a7589a0/click-8.3.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/7e/e8/64c37fadfc2816a7701fa8a6ed8d87327c7d54eacfbfb6edab14a2f2be75/cloudpickle-3.1.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/34/da/0217073d5b3fb8655b3de8af4e9e797a25ae28a2932b1138452a0dc89e9f/cmake-4.1.0-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl
-      - pypi: https://files.pythonhosted.org/packages/f4/c8/09012ac195a0aab58755800d2efdc0e7d5905053509f12cb5d136c911cda/datasets-4.1.1-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/20/34/a08b0ee99715eaba118cbe19a71f7b5e2425c2718ef96007c325944a1152/datasets-3.6.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/f7/e6/efe534ef0952b531b630780e19cabd416e2032697019d5295defc6ef9bd9/deepdiff-8.6.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/2a/2e/38d9824f8c6bb048c5ba21c6d4da54c29c162a46b58b3ef907a360a76d3e/diffusers-0.35.2-py3-none-any.whl
-      - pypi: https://files.pythonhosted.org/packages/50/3d/9373ad9c56321fdab5b41197068e1d8c25883b3fea29dd361f9b55116869/dill-0.4.0-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/c9/7a/cef76fd8438a42f96db64ddaa85280485a9c395e7df3db8158cfec1eee34/dill-0.3.8-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/c4/9a/a83083b230d352ee5d205757b74006dbe084448ca45e3bc5ca99215b1e55/draccus-0.10.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/87/62/9773de14fe6c45c23649e98b83231fffd7b9892b6cf863251dc2afa73643/einops-0.8.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/05/2c/ffc08c54c05cdce6fbed2aeebc46348dbe180c6d2c541c7af7ba0aa5f5f8/Farama_Notifications-0.0.4-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/76/91/7216b27286936c16f5b4d0c530087e4a54eead683e6b0b73dd0c64844af6/filelock-3.20.0-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/ec/f9/7f9263c5695f4bd0023734af91bedb2ff8209e8de6ead162f35d8dc762fd/flask-3.1.2-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/d5/4e/e4691508f9477ce67da2015d8c00acd751e6287739123113a9fca6f1604e/frozenlist-1.8.0-cp313-cp313-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl
-      - pypi: https://files.pythonhosted.org/packages/47/71/70db47e4f6ce3e5c37a607355f80da8860a33226be640226ac52cb05ef2e/fsspec-2025.9.0-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/56/53/eb690efa8513166adef3e0669afd31e95ffde69fb3c52ec2ac7223ed6018/fsspec-2025.3.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/a0/61/5c78b91c3143ed5c14207f463aecfc8f9dbb5092fb2869baf37c273b2705/gitdb-4.0.12-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/01/61/d4b89fec821f72385526e1b9d9a3a0385dda4a72b206d28049e2c7cd39b8/gitpython-3.1.45-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/d0/b3/330dc180fc32d0a7f99d9ac6caec0413771882665ea1da17899e248e577a/gym_pusht-0.1.6-py3-none-any.whl
-      - pypi: https://files.pythonhosted.org/packages/ef/73/85bc0412f15388e3068dc93331c858df6c8fc635b1e3cb30c7f7070ca481/gymnasium-1.2.1-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/a8/4d/3cbfd81ed84db450dbe73a89afcd8bc405273918415649ac6683356afe92/gymnasium-0.29.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/d6/d8/f87ea6f42456254b48915970ed98e993110521e9263472840174d32c880d/hf_transfer-0.1.9-cp38-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/15/07/86397573efefff941e100367bbda0b21496ffcdb34db7ab51912994c32a2/hf_xet-1.1.10-cp37-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/31/a0/651f93d154cb72323358bf2bbae3e642bdb5d2f1bfc874d096f7cb159fa0/huggingface_hub-0.35.3-py3-none-any.whl
@@ -183,6 +184,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/a0/2d/43c8522a2038e9d0e7dbdf3a61195ecc31ca576fb1527a528c877e87d973/imageio_ffmpeg-0.6.0-py3-none-manylinux2014_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/20/b0/36bd937216ec521246249be3bf9855081de4c5e06a0c9b4219dbeda50373/importlib_metadata-8.7.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/ce/ff/3b59672c47c6284e8005b42e84ceba13864aa0f39f067c973d1af02f5d91/InquirerPy-0.3.4-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/04/96/92447566d16df59b2a776c0fb82dbc4d9e07cd95062562af01e408583fc4/itsdangerous-2.2.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/62/a1/3d680cbfd5f4b8f15abc1d571870c5fc3e594bb582bc3b64ea099db13e56/jinja2-3.1.6-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/f8/62/d9ba6323b9202dd2fe166beab8a86d29465c41a0288cbe229fac60c1ab8d/jsonlines-4.0.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/83/60/d497a310bde3f01cb805196ac61b7ad6dc5dcf8dce66634dc34364b20b4f/lazy_loader-0.4-py3-none-any.whl
@@ -250,10 +252,11 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/5c/23/c7abc0ca0a1526a0774eca151daeb8de62ec457e77262b66b359c3c7679e/tzdata-2025.2-py2.py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/a7/c2/fe1e52489ae3122415c51f387e221dd0773709bad6c6cdaa599e8a2c5185/urllib3-2.5.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/f7/56/d9f845ecfd5e078cf637cb29d8abe3350b8a174924c54086168783454a8f/wandb-0.21.4-py3-none-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
+      - pypi: https://files.pythonhosted.org/packages/52/24/ab44c871b0f07f491e5d2ad12c9bd7358e527510618cb1b803a88e986db1/werkzeug-3.1.3-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/5e/1e/3c3d3ef071b051cc3abbe3721ffb8365033a172613c04af2da89d5548a87/xxhash-3.6.0-cp313-cp313-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/11/c9/cd8538dc2e7727095e0c1d867bad1e40c98f37763e6d995c1939f5fdc7b1/yarl-1.22.0-cp313-cp313-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/2e/54/647ade08bf0db230bfea292f893923872fd20be6ac6f53b2b936ba839d75/zipp-3.23.0-py3-none-any.whl
-      - pypi: ../lerobot
+      - pypi: ../lerobot_external_policies_v2.1
       - pypi: ./
 packages:
 - conda: https://conda.anaconda.org/conda-forge/linux-64/_libgcc_mutex-0.1-conda_forge.tar.bz2
@@ -277,81 +280,6 @@ packages:
   purls: []
   size: 23621
   timestamp: 1650670423406
-- pypi: https://files.pythonhosted.org/packages/77/85/85951bc0f9843e2c10baaa1b6657227056095de08f4d1eea7d8b423a6832/accelerate-1.11.0-py3-none-any.whl
-  name: accelerate
-  version: 1.11.0
-  sha256: a628fa6beb069b8e549460fc449135d5bd8d73e7a11fd09f0bc9fc4ace7f06f1
-  requires_dist:
-  - numpy>=1.17
-  - packaging>=20.0
-  - psutil
-  - pyyaml
-  - torch>=2.0.0
-  - huggingface-hub>=0.21.0
-  - safetensors>=0.4.3
-  - ruff==0.13.1 ; extra == 'quality'
-  - pytest>=7.2.0 ; extra == 'test-prod'
-  - pytest-xdist ; extra == 'test-prod'
-  - pytest-subtests ; extra == 'test-prod'
-  - parameterized ; extra == 'test-prod'
-  - pytest-order ; extra == 'test-prod'
-  - datasets ; extra == 'test-dev'
-  - diffusers ; extra == 'test-dev'
-  - evaluate ; extra == 'test-dev'
-  - torchdata>=0.8.0 ; extra == 'test-dev'
-  - torchpippy>=0.2.0 ; extra == 'test-dev'
-  - transformers ; extra == 'test-dev'
-  - scipy ; extra == 'test-dev'
-  - scikit-learn ; extra == 'test-dev'
-  - tqdm ; extra == 'test-dev'
-  - bitsandbytes ; extra == 'test-dev'
-  - timm ; extra == 'test-dev'
-  - pytest>=7.2.0 ; extra == 'testing'
-  - pytest-xdist ; extra == 'testing'
-  - pytest-subtests ; extra == 'testing'
-  - parameterized ; extra == 'testing'
-  - pytest-order ; extra == 'testing'
-  - datasets ; extra == 'testing'
-  - diffusers ; extra == 'testing'
-  - evaluate ; extra == 'testing'
-  - torchdata>=0.8.0 ; extra == 'testing'
-  - torchpippy>=0.2.0 ; extra == 'testing'
-  - transformers ; extra == 'testing'
-  - scipy ; extra == 'testing'
-  - scikit-learn ; extra == 'testing'
-  - tqdm ; extra == 'testing'
-  - bitsandbytes ; extra == 'testing'
-  - timm ; extra == 'testing'
-  - deepspeed ; extra == 'deepspeed'
-  - rich ; extra == 'rich'
-  - torchao ; extra == 'test-fp8'
-  - wandb ; extra == 'test-trackers'
-  - comet-ml ; extra == 'test-trackers'
-  - tensorboard ; extra == 'test-trackers'
-  - dvclive ; extra == 'test-trackers'
-  - matplotlib ; extra == 'test-trackers'
-  - swanlab[dashboard] ; extra == 'test-trackers'
-  - trackio ; extra == 'test-trackers'
-  - ruff==0.13.1 ; extra == 'dev'
-  - pytest>=7.2.0 ; extra == 'dev'
-  - pytest-xdist ; extra == 'dev'
-  - pytest-subtests ; extra == 'dev'
-  - parameterized ; extra == 'dev'
-  - pytest-order ; extra == 'dev'
-  - datasets ; extra == 'dev'
-  - diffusers ; extra == 'dev'
-  - evaluate ; extra == 'dev'
-  - torchdata>=0.8.0 ; extra == 'dev'
-  - torchpippy>=0.2.0 ; extra == 'dev'
-  - transformers ; extra == 'dev'
-  - scipy ; extra == 'dev'
-  - scikit-learn ; extra == 'dev'
-  - tqdm ; extra == 'dev'
-  - bitsandbytes ; extra == 'dev'
-  - timm ; extra == 'dev'
-  - rich ; extra == 'dev'
-  - sagemaker ; extra == 'sagemaker'
-  requires_python: '>=3.10.0'
 - pypi: https://files.pythonhosted.org/packages/0f/15/5bf3b99495fb160b63f95972b81750f18f7f4e02ad051373b669d17d44f2/aiohappyeyeballs-2.6.1-py3-none-any.whl
   name: aiohappyeyeballs
   version: 2.6.1
@@ -697,6 +625,11 @@ packages:
   purls: []
   size: 299871
   timestamp: 1753226720130
+- pypi: https://files.pythonhosted.org/packages/10/cb/f2ad4230dc2eb1a74edf38f1a38b9b52277f75bef262d8908e60d957e13c/blinker-1.9.0-py3-none-any.whl
+  name: blinker
+  version: 1.9.0
+  sha256: ba0efaa9080b619ff2f3459d1d500c57bddea4a6b424b60a91141db6fd2f08bc
+  requires_python: '>=3.9'
 - conda: https://conda.anaconda.org/conda-forge/linux-64/bzip2-1.0.8-hda65f42_8.conda
   sha256: c30daba32ddebbb7ded490f0e371eae90f51e72db620554089103b4a6934b0d5
   md5: 51a19bba1b8ebfb60df25cde030b7ebc
@@ -774,33 +707,34 @@ packages:
   - pkg:pypi/comm?source=hash-mapping
   size: 14690
   timestamp: 1753453984907
-- pypi: https://files.pythonhosted.org/packages/f4/c8/09012ac195a0aab58755800d2efdc0e7d5905053509f12cb5d136c911cda/datasets-4.1.1-py3-none-any.whl
+- pypi: https://files.pythonhosted.org/packages/20/34/a08b0ee99715eaba118cbe19a71f7b5e2425c2718ef96007c325944a1152/datasets-3.6.0-py3-none-any.whl
   name: datasets
-  version: 4.1.1
-  sha256: 62e4f6899a36be9ec74a7e759a6951253cc85b3fcfa0a759b0efa8353b149dac
+  version: 3.6.0
+  sha256: 25000c4a2c0873a710df127d08a202a06eab7bf42441a6bc278b499c2f72cd1b
   requires_dist:
   - filelock
   - numpy>=1.17
-  - pyarrow>=21.0.0
-  - dill>=0.3.0,<0.4.1
+  - pyarrow>=15.0.0
+  - dill>=0.3.0,<0.3.9
   - pandas
   - requests>=2.32.2
   - tqdm>=4.66.3
   - xxhash
   - multiprocess<0.70.17
-  - fsspec[http]>=2023.1.0,<=2025.9.0
+  - fsspec[http]>=2023.1.0,<=2025.3.0
   - huggingface-hub>=0.24.0
   - packaging
   - pyyaml>=5.1
-  - torchcodec>=0.6.0 ; extra == 'audio'
-  - torch>=2.8.0 ; extra == 'audio'
+  - soundfile>=0.12.1 ; extra == 'audio'
+  - librosa ; extra == 'audio'
+  - soxr>=0.4.0 ; extra == 'audio'
   - pillow>=9.4.0 ; extra == 'vision'
   - tensorflow>=2.6.0 ; extra == 'tensorflow'
   - tensorflow>=2.6.0 ; extra == 'tensorflow-gpu'
   - torch ; extra == 'torch'
   - jax>=0.3.14 ; extra == 'jax'
   - jaxlib>=0.3.14 ; extra == 'jax'
-  - numba>=0.56.4 ; extra == 'dev'
+  - s3fs ; extra == 's3'
   - absl-py ; extra == 'dev'
   - decorator ; extra == 'dev'
   - joblib<1.3.0 ; extra == 'dev'
@@ -811,7 +745,6 @@ packages:
   - aiohttp ; extra == 'dev'
   - elasticsearch>=7.17.12,<8.0.0 ; extra == 'dev'
   - faiss-cpu>=1.8.0.post1 ; extra == 'dev'
-  - h5py ; extra == 'dev'
   - jax>=0.3.14 ; sys_platform != 'win32' and extra == 'dev'
   - jaxlib>=0.3.14 ; sys_platform != 'win32' and extra == 'dev'
   - lz4 ; extra == 'dev'
@@ -820,22 +753,28 @@ packages:
   - py7zr ; extra == 'dev'
   - rarfile>=4.0 ; extra == 'dev'
   - sqlalchemy ; extra == 'dev'
+  - s3fs>=2021.11.1 ; extra == 'dev'
   - protobuf<4.0.0 ; extra == 'dev'
-  - tensorflow>=2.6.0 ; python_full_version < '3.10' and sys_platform != 'win32' and extra == 'dev'
-  - tensorflow>=2.16.0 ; python_full_version >= '3.10' and sys_platform != 'win32' and extra == 'dev'
+  - tensorflow>=2.6.0 ; python_full_version < '3.10' and extra == 'dev'
+  - tensorflow>=2.16.0 ; python_full_version >= '3.10' and extra == 'dev'
   - tiktoken ; extra == 'dev'
-  - torch>=2.8.0 ; extra == 'dev'
+  - torch>=2.0.0 ; extra == 'dev'
   - torchdata ; extra == 'dev'
+  - soundfile>=0.12.1 ; extra == 'dev'
   - transformers>=4.42.0 ; extra == 'dev'
   - zstandard ; extra == 'dev'
   - polars[timezone]>=0.20.0 ; extra == 'dev'
+  - torchvision ; extra == 'dev'
+  - pyav ; extra == 'dev'
   - pillow>=9.4.0 ; extra == 'dev'
-  - torchcodec>=0.7.0 ; extra == 'dev'
+  - soundfile>=0.12.1 ; extra == 'dev'
+  - librosa ; extra == 'dev'
+  - soxr>=0.4.0 ; extra == 'dev'
   - ruff>=0.3.0 ; extra == 'dev'
+  - s3fs ; extra == 'dev'
   - transformers ; extra == 'dev'
   - torch ; extra == 'dev'
   - tensorflow>=2.6.0 ; extra == 'dev'
-  - numba>=0.56.4 ; extra == 'tests'
   - absl-py ; extra == 'tests'
   - decorator ; extra == 'tests'
   - joblib<1.3.0 ; extra == 'tests'
@@ -846,7 +785,6 @@ packages:
   - aiohttp ; extra == 'tests'
   - elasticsearch>=7.17.12,<8.0.0 ; extra == 'tests'
   - faiss-cpu>=1.8.0.post1 ; extra == 'tests'
-  - h5py ; extra == 'tests'
   - jax>=0.3.14 ; sys_platform != 'win32' and extra == 'tests'
   - jaxlib>=0.3.14 ; sys_platform != 'win32' and extra == 'tests'
   - lz4 ; extra == 'tests'
@@ -855,18 +793,23 @@ packages:
   - py7zr ; extra == 'tests'
   - rarfile>=4.0 ; extra == 'tests'
   - sqlalchemy ; extra == 'tests'
+  - s3fs>=2021.11.1 ; extra == 'tests'
   - protobuf<4.0.0 ; extra == 'tests'
-  - tensorflow>=2.6.0 ; python_full_version < '3.10' and sys_platform != 'win32' and extra == 'tests'
-  - tensorflow>=2.16.0 ; python_full_version >= '3.10' and sys_platform != 'win32' and extra == 'tests'
+  - tensorflow>=2.6.0 ; python_full_version < '3.10' and extra == 'tests'
+  - tensorflow>=2.16.0 ; python_full_version >= '3.10' and extra == 'tests'
   - tiktoken ; extra == 'tests'
-  - torch>=2.8.0 ; extra == 'tests'
+  - torch>=2.0.0 ; extra == 'tests'
   - torchdata ; extra == 'tests'
+  - soundfile>=0.12.1 ; extra == 'tests'
   - transformers>=4.42.0 ; extra == 'tests'
   - zstandard ; extra == 'tests'
   - polars[timezone]>=0.20.0 ; extra == 'tests'
+  - torchvision ; extra == 'tests'
+  - pyav ; extra == 'tests'
   - pillow>=9.4.0 ; extra == 'tests'
-  - torchcodec>=0.7.0 ; extra == 'tests'
-  - numba>=0.56.4 ; extra == 'tests-numpy2'
+  - soundfile>=0.12.1 ; extra == 'tests'
+  - librosa ; extra == 'tests'
+  - soxr>=0.4.0 ; extra == 'tests'
   - absl-py ; extra == 'tests-numpy2'
   - decorator ; extra == 'tests-numpy2'
   - joblib<1.3.0 ; extra == 'tests-numpy2'
@@ -876,7 +819,6 @@ packages:
   - pytest-xdist ; extra == 'tests-numpy2'
   - aiohttp ; extra == 'tests-numpy2'
   - elasticsearch>=7.17.12,<8.0.0 ; extra == 'tests-numpy2'
-  - h5py ; extra == 'tests-numpy2'
   - jax>=0.3.14 ; sys_platform != 'win32' and extra == 'tests-numpy2'
   - jaxlib>=0.3.14 ; sys_platform != 'win32' and extra == 'tests-numpy2'
   - lz4 ; extra == 'tests-numpy2'
@@ -885,19 +827,25 @@ packages:
   - py7zr ; extra == 'tests-numpy2'
   - rarfile>=4.0 ; extra == 'tests-numpy2'
   - sqlalchemy ; extra == 'tests-numpy2'
+  - s3fs>=2021.11.1 ; extra == 'tests-numpy2'
   - protobuf<4.0.0 ; extra == 'tests-numpy2'
   - tiktoken ; extra == 'tests-numpy2'
-  - torch>=2.8.0 ; extra == 'tests-numpy2'
+  - torch>=2.0.0 ; extra == 'tests-numpy2'
   - torchdata ; extra == 'tests-numpy2'
+  - soundfile>=0.12.1 ; extra == 'tests-numpy2'
   - transformers>=4.42.0 ; extra == 'tests-numpy2'
   - zstandard ; extra == 'tests-numpy2'
   - polars[timezone]>=0.20.0 ; extra == 'tests-numpy2'
+  - torchvision ; extra == 'tests-numpy2'
+  - pyav ; extra == 'tests-numpy2'
   - pillow>=9.4.0 ; extra == 'tests-numpy2'
-  - torchcodec>=0.7.0 ; extra == 'tests-numpy2'
+  - soundfile>=0.12.1 ; extra == 'tests-numpy2'
+  - soxr>=0.4.0 ; extra == 'tests-numpy2'
   - ruff>=0.3.0 ; extra == 'quality'
   - tensorflow==2.12.0 ; extra == 'benchmarks'
   - torch==2.0.1 ; extra == 'benchmarks'
   - transformers==4.30.1 ; extra == 'benchmarks'
+  - s3fs ; extra == 'docs'
   - transformers ; extra == 'docs'
   - torch ; extra == 'docs'
   - tensorflow>=2.6.0 ; extra == 'docs'
@@ -1040,10 +988,10 @@ packages:
   - jaxlib>=0.4.1 ; extra == 'dev'
   - flax>=0.4.1 ; extra == 'dev'
   requires_python: '>=3.8.0'
-- pypi: https://files.pythonhosted.org/packages/50/3d/9373ad9c56321fdab5b41197068e1d8c25883b3fea29dd361f9b55116869/dill-0.4.0-py3-none-any.whl
+- pypi: https://files.pythonhosted.org/packages/c9/7a/cef76fd8438a42f96db64ddaa85280485a9c395e7df3db8158cfec1eee34/dill-0.3.8-py3-none-any.whl
   name: dill
-  version: 0.4.0
-  sha256: 44f54bf6412c2c8464c14e8243eb163690a9800dbe2c367330883b19c7561049
+  version: 0.3.8
+  sha256: c36ca9ffb54365bdd2f8eb3eff7d2a21237f8452b57ace88b1ac615b7e815bd7
   requires_dist:
   - objgraph>=1.7.2 ; extra == 'graph'
   - gprof2dot>=2022.7.29 ; extra == 'profile'
@@ -1114,15 +1062,30 @@ packages:
   version: 3.20.0
   sha256: 339b4732ffda5cd79b13f4e2711a31b0365ce445d95d243bb996273d072546a2
   requires_python: '>=3.10'
+- pypi: https://files.pythonhosted.org/packages/ec/f9/7f9263c5695f4bd0023734af91bedb2ff8209e8de6ead162f35d8dc762fd/flask-3.1.2-py3-none-any.whl
+  name: flask
+  version: 3.1.2
+  sha256: ca1d8112ec8a6158cc29ea4858963350011b5c846a414cdb7a954aa9e967d03c
+  requires_dist:
+  - blinker>=1.9.0
+  - click>=8.1.3
+  - importlib-metadata>=3.6.0 ; python_full_version < '3.10'
+  - itsdangerous>=2.2.0
+  - jinja2>=3.1.2
+  - markupsafe>=2.1.1
+  - werkzeug>=3.1.0
+  - asgiref>=3.2 ; extra == 'async'
+  - python-dotenv ; extra == 'dotenv'
+  requires_python: '>=3.9'
 - pypi: https://files.pythonhosted.org/packages/d5/4e/e4691508f9477ce67da2015d8c00acd751e6287739123113a9fca6f1604e/frozenlist-1.8.0-cp313-cp313-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl
   name: frozenlist
   version: 1.8.0
   sha256: fb30f9626572a76dfe4293c7194a09fb1fe93ba94c7d4f720dfae3b646b45027
   requires_python: '>=3.9'
-- pypi: https://files.pythonhosted.org/packages/47/71/70db47e4f6ce3e5c37a607355f80da8860a33226be640226ac52cb05ef2e/fsspec-2025.9.0-py3-none-any.whl
+- pypi: https://files.pythonhosted.org/packages/56/53/eb690efa8513166adef3e0669afd31e95ffde69fb3c52ec2ac7223ed6018/fsspec-2025.3.0-py3-none-any.whl
   name: fsspec
-  version: 2025.9.0
-  sha256: 530dc2a2af60a414a832059574df4a6e10cce927f6f4a78209390fe38955cfb7
+  version: 2025.3.0
+  sha256: efb87af3efa9103f94ca91a7f8cb7a4df91af9f74fc106c9c7ea0efd7277c1b3
   requires_dist:
   - adlfs ; extra == 'abfs'
   - adlfs ; extra == 'adl'
@@ -1130,7 +1093,7 @@ packages:
   - dask ; extra == 'dask'
   - distributed ; extra == 'dask'
   - pre-commit ; extra == 'dev'
-  - ruff>=0.5 ; extra == 'dev'
+  - ruff ; extra == 'dev'
   - numpydoc ; extra == 'doc'
   - sphinx ; extra == 'doc'
   - sphinx-design ; extra == 'doc'
@@ -1223,9 +1186,9 @@ packages:
   - tqdm ; extra == 'test-full'
   - urllib3 ; extra == 'test-full'
   - zarr ; extra == 'test-full'
-  - zstandard ; python_full_version < '3.14' and extra == 'test-full'
+  - zstandard ; extra == 'test-full'
   - tqdm ; extra == 'tqdm'
-  requires_python: '>=3.9'
+  requires_python: '>=3.8'
 - conda: https://conda.anaconda.org/conda-forge/linux-64/gflags-2.2.2-h5888daf_1005.conda
   sha256: 6c33bf0c4d8f418546ba9c250db4e4221040936aef8956353bc764d4877bc39a
   md5: d411fc29e338efb48c5fd4576d71d881
@@ -1295,68 +1258,56 @@ packages:
   - scikit-image>=0.22.0
   - shapely>=2.0.3
   requires_python: '>=3.10,<4.0'
-- pypi: https://files.pythonhosted.org/packages/ef/73/85bc0412f15388e3068dc93331c858df6c8fc635b1e3cb30c7f7070ca481/gymnasium-1.2.1-py3-none-any.whl
+- pypi: https://files.pythonhosted.org/packages/a8/4d/3cbfd81ed84db450dbe73a89afcd8bc405273918415649ac6683356afe92/gymnasium-0.29.1-py3-none-any.whl
   name: gymnasium
-  version: 1.2.1
-  sha256: 85cd1c16351db0b89f73be54e952ddfece97b56d1e5400d2dcd59f58b7707963
+  version: 0.29.1
+  sha256: 61c3384b5575985bb7f85e43213bcb40f36fcdff388cae6bc229304c71f2843e
   requires_dist:
   - numpy>=1.21.0
   - cloudpickle>=1.2.0
   - typing-extensions>=4.3.0
   - farama-notifications>=0.0.1
-  - ale-py>=0.9 ; extra == 'atari'
+  - importlib-metadata>=4.8.0 ; python_full_version < '3.10'
+  - autorom[accept-rom-license]~=0.4.2 ; extra == 'accept-rom-license'
+  - shimmy[atari]>=0.1.0,<1.0 ; extra == 'all'
+  - box2d-py==2.3.5 ; extra == 'all'
+  - pygame>=2.1.3 ; extra == 'all'
+  - swig==4.* ; extra == 'all'
+  - mujoco-py>=2.1,<2.2 ; extra == 'all'
+  - cython<3 ; extra == 'all'
+  - mujoco>=2.3.3 ; extra == 'all'
+  - imageio>=2.14.1 ; extra == 'all'
+  - jax>=0.4.0 ; extra == 'all'
+  - jaxlib>=0.4.0 ; extra == 'all'
+  - lz4>=3.1.0 ; extra == 'all'
+  - opencv-python>=3.0 ; extra == 'all'
+  - matplotlib>=3.0 ; extra == 'all'
+  - moviepy>=1.0.0 ; extra == 'all'
+  - torch>=1.0.0 ; extra == 'all'
+  - shimmy[atari]>=0.1.0,<1.0 ; extra == 'atari'
   - box2d-py==2.3.5 ; extra == 'box2d'
   - pygame>=2.1.3 ; extra == 'box2d'
   - swig==4.* ; extra == 'box2d'
   - pygame>=2.1.3 ; extra == 'classic-control'
   - pygame>=2.1.3 ; extra == 'classic-control'
-  - mujoco>=2.1.5 ; extra == 'mujoco'
+  - jax>=0.4.0 ; extra == 'jax'
+  - jaxlib>=0.4.0 ; extra == 'jax'
+  - mujoco>=2.3.3 ; extra == 'mujoco'
   - imageio>=2.14.1 ; extra == 'mujoco'
-  - packaging>=23.0 ; extra == 'mujoco'
-  - pygame>=2.1.3 ; extra == 'toy-text'
-  - pygame>=2.1.3 ; extra == 'toy-text'
-  - jax>=0.4.16 ; extra == 'jax'
-  - jaxlib>=0.4.16 ; extra == 'jax'
-  - flax>=0.5.0 ; extra == 'jax'
-  - array-api-compat>=1.11.0 ; extra == 'jax'
-  - numpy>=2.1 ; extra == 'jax'
-  - torch>=1.13.0 ; extra == 'torch'
-  - array-api-compat>=1.11.0 ; extra == 'torch'
-  - numpy>=2.1 ; extra == 'torch'
-  - array-api-compat>=1.11.0 ; extra == 'array-api'
-  - numpy>=2.1 ; extra == 'array-api'
-  - packaging>=23.0 ; extra == 'array-api'
-  - moviepy>=1.0.0 ; extra == 'other'
-  - matplotlib>=3.0 ; extra == 'other'
+  - mujoco-py>=2.1,<2.2 ; extra == 'mujoco-py'
+  - cython<3 ; extra == 'mujoco-py'
+  - mujoco-py>=2.1,<2.2 ; extra == 'mujoco-py'
+  - cython<3 ; extra == 'mujoco-py'
+  - lz4>=3.1.0 ; extra == 'other'
   - opencv-python>=3.0 ; extra == 'other'
-  - seaborn>=0.13 ; extra == 'other'
-  - ale-py>=0.9 ; extra == 'all'
-  - box2d-py==2.3.5 ; extra == 'all'
-  - pygame>=2.1.3 ; extra == 'all'
-  - swig==4.* ; extra == 'all'
-  - pygame>=2.1.3 ; extra == 'all'
-  - mujoco>=2.1.5 ; extra == 'all'
-  - imageio>=2.14.1 ; extra == 'all'
-  - packaging>=23.0 ; extra == 'all'
-  - pygame>=2.1.3 ; extra == 'all'
-  - jax>=0.4.16 ; extra == 'all'
-  - jaxlib>=0.4.16 ; extra == 'all'
-  - flax>=0.5.0 ; extra == 'all'
-  - array-api-compat>=1.11.0 ; extra == 'all'
-  - numpy>=2.1 ; extra == 'all'
-  - torch>=1.13.0 ; extra == 'all'
-  - array-api-compat>=1.11.0 ; extra == 'all'
-  - numpy>=2.1 ; extra == 'all'
-  - array-api-compat>=1.11.0 ; extra == 'all'
-  - numpy>=2.1 ; extra == 'all'
-  - opencv-python>=3.0 ; extra == 'all'
-  - matplotlib>=3.0 ; extra == 'all'
-  - moviepy>=1.0.0 ; extra == 'all'
-  - pytest>=7.1.3 ; extra == 'testing'
+  - matplotlib>=3.0 ; extra == 'other'
+  - moviepy>=1.0.0 ; extra == 'other'
+  - torch>=1.0.0 ; extra == 'other'
+  - pytest==7.1.3 ; extra == 'testing'
   - scipy>=1.7.3 ; extra == 'testing'
-  - dill>=0.3.7 ; extra == 'testing'
-  - array-api-extra>=0.7.0 ; extra == 'testing'
-  requires_python: '>=3.10'
+  - pygame>=2.1.3 ; extra == 'toy-text'
+  - pygame>=2.1.3 ; extra == 'toy-text'
+  requires_python: '>=3.8'
 - pypi: https://files.pythonhosted.org/packages/d6/d8/f87ea6f42456254b48915970ed98e993110521e9263472840174d32c880d/hf_transfer-0.1.9-cp38-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
   name: hf-transfer
   version: 0.1.9
@@ -1675,6 +1626,11 @@ packages:
   - pkg:pypi/ipywidgets?source=hash-mapping
   size: 114557
   timestamp: 1746454722402
+- pypi: https://files.pythonhosted.org/packages/04/96/92447566d16df59b2a776c0fb82dbc4d9e07cd95062562af01e408583fc4/itsdangerous-2.2.0-py3-none-any.whl
+  name: itsdangerous
+  version: 2.2.0
+  sha256: c6242fc49e35958c8b15141343aa660db5fc54d4f13a1db01a3f5891b98700ef
+  requires_python: '>=3.8'
 - conda: https://conda.anaconda.org/conda-forge/noarch/jedi-0.19.2-pyhd8ed1ab_1.conda
   sha256: 92c4d217e2dc68983f724aa983cca5464dcb929c566627b26a2511159667dba8
   md5: a4f4c5dc9b80bc50e0d3dc4e6e8f1bd9
@@ -1800,105 +1756,99 @@ packages:
   purls: []
   size: 264243
   timestamp: 1745264221534
-- pypi: ../lerobot
+- pypi: ../lerobot_external_policies_v2.1
   name: lerobot
-  version: 0.3.4
-  sha256: d3f138e9d15bac49d10ec8040804016b562633b379a1b9fe66b3486cab288e4a
+  version: 0.2.0
+  sha256: 5ab12c18e6b4dbe6a2cdb2dadc4c5e2b8a3664f47ba1e99c035af2b3c6261503
   requires_dist:
-  - datasets>=4.0.0,<4.2.0
-  - diffusers>=0.27.2,<0.36.0
-  - huggingface-hub[hf-transfer,cli]>=0.34.2,<0.36.0
-  - accelerate>=1.10.0,<2.0.0
-  - setuptools>=71.0.0,<81.0.0
-  - cmake>=3.29.0.1,<4.2.0
-  - einops>=0.8.0,<0.9.0
-  - opencv-python-headless>=4.9.0,<4.13.0
-  - av>=15.0.0,<16.0.0
-  - jsonlines>=4.0.0,<5.0.0
-  - packaging>=24.2,<26.0
-  - pynput>=1.7.7,<1.9.0
-  - pyserial>=3.5,<4.0
-  - wandb>=0.20.0,<0.22.0
-  - torch>=2.2.1,<2.8.0
-  - torchcodec>=0.2.1,<0.6.0 ; (platform_machine != 'aarch64' and platform_machine != 'arm64' and platform_machine != 'armv7l' and platform_machine != 'x86_64' and sys_platform != 'win32') or (platform_machine == 'aarch64' and sys_platform != 'linux' and sys_platform != 'win32') or (platform_machine == 'arm64' and sys_platform != 'linux' and sys_platform != 'win32') or (platform_machine == 'armv7l' and sys_platform != 'linux' and sys_platform != 'win32') or (platform_machine == 'x86_64' and sys_platform != 'darwin' and sys_platform != 'win32')
-  - torchvision>=0.21.0,<0.23.0
+  - datasets>=2.19.0,<=3.6.0
+  - diffusers>=0.27.2
+  - huggingface-hub[hf-transfer,cli]>=0.27.1
+  - cmake>=3.29.0.1
+  - einops>=0.8.0
+  - opencv-python-headless>=4.9.0
+  - av>=14.2.0
+  - torch>=2.2.1
+  - torchcodec>=0.2.1 ; (platform_machine != 'aarch64' and platform_machine != 'arm64' and platform_machine != 'armv7l' and platform_machine != 'x86_64' and sys_platform != 'win32') or (platform_machine == 'aarch64' and sys_platform != 'linux' and sys_platform != 'win32') or (platform_machine == 'arm64' and sys_platform != 'linux' and sys_platform != 'win32') or (platform_machine == 'armv7l' and sys_platform != 'linux' and sys_platform != 'win32') or (platform_machine == 'x86_64' and sys_platform != 'darwin' and sys_platform != 'win32')
+  - torchvision>=0.21.0
+  - jsonlines>=4.0.0
+  - packaging>=24.2
+  - pynput>=1.7.7
+  - pyserial>=3.5
+  - wandb>=0.16.3
   - draccus==0.10.0
-  - gymnasium>=1.0.0
-  - rerun-sdk>=0.24.0,<0.27.0
+  - gymnasium>=0.29.1,<1.0.0
+  - rerun-sdk>=0.21.0,<0.23.0
   - deepdiff>=7.0.1,<9.0.0
+  - flask>=3.0.3,<4.0.0
   - imageio[ffmpeg]>=2.34.0,<3.0.0
   - termcolor>=2.4.0,<4.0.0
-  - pygame>=2.5.1,<2.7.0 ; extra == 'pygame-dep'
-  - placo>=0.9.6,<0.10.0 ; extra == 'placo-dep'
-  - transformers>=4.53.0,<5.0.0 ; extra == 'transformers-dep'
+  - pygame>=2.5.1 ; extra == 'pygame-dep'
+  - placo>=0.9.6 ; extra == 'placo-dep'
+  - transformers>=4.50.3,<4.52.0 ; extra == 'transformers-dep'
   - grpcio==1.73.1 ; extra == 'grpcio-dep'
   - protobuf==6.31.0 ; extra == 'grpcio-dep'
-  - feetech-servo-sdk>=1.0.0,<2.0.0 ; extra == 'feetech'
-  - dynamixel-sdk>=3.7.31,<3.9.0 ; extra == 'dynamixel'
+  - feetech-servo-sdk>=1.0.0 ; extra == 'feetech'
+  - dynamixel-sdk>=3.7.31 ; extra == 'dynamixel'
   - lerobot[pygame-dep] ; extra == 'gamepad'
-  - hidapi>=0.14.0,<0.15.0 ; extra == 'gamepad'
+  - hidapi>=0.14.0 ; extra == 'gamepad'
   - lerobot[feetech] ; extra == 'hopejr'
   - lerobot[pygame-dep] ; extra == 'hopejr'
   - lerobot[feetech] ; extra == 'lekiwi'
-  - pyzmq>=26.2.1,<28.0.0 ; extra == 'lekiwi'
-  - reachy2-sdk>=1.0.14,<1.1.0 ; extra == 'reachy2'
+  - pyzmq>=26.2.1 ; extra == 'lekiwi'
   - lerobot[placo-dep] ; extra == 'kinematics'
-  - pyrealsense2>=2.55.1.6486,<2.57.0 ; sys_platform != 'darwin' and extra == 'intelrealsense'
-  - pyrealsense2-macosx>=2.54,<2.55.0 ; sys_platform == 'darwin' and extra == 'intelrealsense'
-  - hebi-py>=2.8.0,<2.12.0 ; extra == 'phone'
-  - teleop>=0.1.0,<0.2.0 ; extra == 'phone'
-  - transformers @ git+https://github.com/huggingface/transformers.git@fix/lerobot_openpi ; extra == 'pi'
+  - pyrealsense2>=2.55.1.6486 ; sys_platform != 'darwin' and extra == 'intelrealsense'
+  - pyrealsense2-macosx>=2.54 ; sys_platform == 'darwin' and extra == 'intelrealsense'
+  - lerobot[transformers-dep] ; extra == 'pi0'
   - lerobot[transformers-dep] ; extra == 'smolvla'
-  - num2words>=0.5.14,<0.6.0 ; extra == 'smolvla'
-  - accelerate>=1.7.0,<2.0.0 ; extra == 'smolvla'
-  - safetensors>=0.4.3,<1.0.0 ; extra == 'smolvla'
+  - num2words>=0.5.14 ; extra == 'smolvla'
+  - accelerate>=1.7.0 ; extra == 'smolvla'
+  - safetensors>=0.4.3 ; extra == 'smolvla'
   - lerobot[transformers-dep] ; extra == 'hilserl'
-  - gym-hil>=0.1.11,<0.2.0 ; extra == 'hilserl'
+  - gym-hil>=0.1.9 ; extra == 'hilserl'
   - lerobot[grpcio-dep] ; extra == 'hilserl'
   - lerobot[placo-dep] ; extra == 'hilserl'
   - lerobot[grpcio-dep] ; extra == 'async'
-  - matplotlib>=3.10.3,<4.0.0 ; extra == 'async'
-  - pre-commit>=3.7.0,<5.0.0 ; extra == 'dev'
-  - debugpy>=1.8.1,<1.9.0 ; extra == 'dev'
+  - matplotlib>=3.10.3 ; extra == 'async'
+  - hf-doc-builder @ git+https://github.com/huggingface/doc-builder.git@main ; extra == 'docs'
+  - watchdog>=6.0.0 ; extra == 'docs'
+  - pre-commit>=3.7.0 ; extra == 'dev'
+  - debugpy>=1.8.1 ; extra == 'dev'
   - lerobot[grpcio-dep] ; extra == 'dev'
   - grpcio-tools==1.73.1 ; extra == 'dev'
-  - pytest>=8.1.0,<9.0.0 ; extra == 'test'
-  - pytest-timeout>=2.4.0,<3.0.0 ; extra == 'test'
-  - pytest-cov>=5.0.0,<8.0.0 ; extra == 'test'
-  - mock-serial>=0.0.1,<0.1.0 ; sys_platform != 'win32' and extra == 'test'
-  - scikit-image>=0.23.2,<0.26.0 ; extra == 'video-benchmark'
-  - pandas>=2.2.2,<2.4.0 ; extra == 'video-benchmark'
-  - gym-aloha>=0.1.2,<0.2.0 ; extra == 'aloha'
-  - gym-pusht>=0.1.5,<0.2.0 ; extra == 'pusht'
+  - pytest>=8.1.0 ; extra == 'test'
+  - pytest-timeout>=2.4.0 ; extra == 'test'
+  - pytest-cov>=5.0.0 ; extra == 'test'
+  - mock-serial>=0.0.1 ; sys_platform != 'win32' and extra == 'test'
+  - scikit-image>=0.23.2 ; extra == 'video-benchmark'
+  - pandas>=2.2.2 ; extra == 'video-benchmark'
+  - gym-aloha>=0.1.1 ; extra == 'aloha'
+  - gym-pusht>=0.1.5 ; extra == 'pusht'
   - pymunk>=6.6.0,<7.0.0 ; extra == 'pusht'
-  - lerobot[transformers-dep] ; extra == 'libero'
-  - libero @ git+https://github.com/huggingface/lerobot-libero.git@main ; extra == 'libero'
-  - metaworld>=3.0.0 ; extra == 'metaworld'
+  - gym-xarm>=0.1.1 ; extra == 'xarm'
   - lerobot[dynamixel] ; extra == 'all'
   - lerobot[gamepad] ; extra == 'all'
   - lerobot[hopejr] ; extra == 'all'
   - lerobot[lekiwi] ; extra == 'all'
-  - lerobot[reachy2] ; extra == 'all'
   - lerobot[kinematics] ; extra == 'all'
   - lerobot[intelrealsense] ; extra == 'all'
-  - lerobot[pi] ; extra == 'all'
+  - lerobot[pi0] ; extra == 'all'
   - lerobot[smolvla] ; extra == 'all'
   - lerobot[hilserl] ; extra == 'all'
   - lerobot[async] ; extra == 'all'
+  - lerobot[docs] ; extra == 'all'
   - lerobot[dev] ; extra == 'all'
   - lerobot[test] ; extra == 'all'
   - lerobot[video-benchmark] ; extra == 'all'
   - lerobot[aloha] ; extra == 'all'
   - lerobot[pusht] ; extra == 'all'
-  - lerobot[phone] ; extra == 'all'
-  - lerobot[libero] ; extra == 'all'
-  - lerobot[metaworld] ; extra == 'all'
+  - lerobot[xarm] ; extra == 'all'
   requires_python: '>=3.10'
   editable: true
 - pypi: ./
   name: lerobot-policy-ditflow
   version: 0.1.0
-  sha256: 3221d73e1fc55ba1d2fe8817a6eec168436ab1a8b5fe058126285eaf2a7e3332
+  sha256: fa1acaf2ad0eb6d12bd948c17a56629752cc873d8632429592ee0a441b087a5f
   requires_python: '>=3.11'
   editable: true
 - conda: https://conda.anaconda.org/conda-forge/linux-64/libabseil-20250512.1-cxx17_hba17884_0.conda
@@ -3530,16 +3480,16 @@ packages:
   - pysocks>=1.5.6,!=1.5.7 ; extra == 'socks'
   - chardet>=3.0.2,<6 ; extra == 'use-chardet-on-py3'
   requires_python: '>=3.9'
-- conda: https://conda.anaconda.org/conda-forge/linux-64/rerun-sdk-0.24.1-py313h68dd597_0.conda
-  sha256: 49c8999cfde4790ef91cd5de5caf5335cad540acf403ae0079d6b37b081fed64
-  md5: 532f8879a1184eaf04230ce3ffc8bec5
+- conda: https://conda.anaconda.org/conda-forge/linux-64/rerun-sdk-0.21.0-py313h3a0df0f_0.conda
+  sha256: 092c75ac46d9d4c6167c41eefd9bfcffa582fe51921013d33a525675cba5ddf9
+  md5: b980c03d8aed3ea3b91a4629312f6339
   depends:
   - __glibc >=2.17,<3.0.a0
   - anywidget
   - attrs >=23.1.0
   - jupyter-ui-poll
-  - libgcc >=14
-  - libstdcxx >=14
+  - libgcc >=13
+  - libstdcxx >=13
   - numpy >=1.23
   - pillow
   - pyarrow >=14.0.2
@@ -3552,8 +3502,8 @@ packages:
   purls:
   - pkg:pypi/rerun-notebook?source=hash-mapping
   - pkg:pypi/rerun-sdk?source=hash-mapping
-  size: 69675090
-  timestamp: 1755871872583
+  size: 41035908
+  timestamp: 1734635938460
 - conda: https://conda.anaconda.org/conda-forge/linux-64/s2n-1.5.26-h5ac9029_0.conda
   sha256: 14acdf5685f457988dba0053b9d29f1861b1c8fff6da13ec863d6a2b6ac75bff
   md5: 0cfd80e699ae130623c0f42c6c6cf798
@@ -4187,6 +4137,14 @@ packages:
   - pkg:pypi/wcwidth?source=hash-mapping
   size: 33670
   timestamp: 1758622418893
+- pypi: https://files.pythonhosted.org/packages/52/24/ab44c871b0f07f491e5d2ad12c9bd7358e527510618cb1b803a88e986db1/werkzeug-3.1.3-py3-none-any.whl
+  name: werkzeug
+  version: 3.1.3
+  sha256: 54b78bf3716d19a65be4fceccc0d1d7b89e608834989dfae50ea87564639213e
+  requires_dist:
+  - markupsafe>=2.1.1
+  - watchdog>=2.3 ; extra == 'watchdog'
+  requires_python: '>=3.9'
 - conda: https://conda.anaconda.org/conda-forge/noarch/widgetsnbextension-4.0.14-pyhd8ed1ab_0.conda
   sha256: 7df3620c88343f2d960a58a81b79d4e4aa86ab870249e7165db7c3e2971a2664
   md5: 2f1f99b13b9d2a03570705030a0b3e7c

@@ -18,7 +18,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F  # noqa: N812
 
-from lerobot.utils.constants import (
+from lerobot.constants import (
     OBS_ENV_STATE,
     OBS_STATE,
     ACTION,
@@ -32,6 +32,7 @@ from lerobot.policies.utils import (
     get_dtype_from_parameters,
     populate_queues,
 )
+from lerobot.policies.normalize import Normalize, Unnormalize
 
 logger = logging.getLogger(__name__)
 
@@ -364,6 +365,16 @@ class DiTFlowPolicy(PreTrainedPolicy):
         # queues are populated during rollout of the policy, they contain the n latest observations and actions
         self._queues = None
 
+        self.normalize_inputs = Normalize(
+            config.input_features, config.normalization_mapping, dataset_stats
+        )
+        self.normalize_targets = Normalize(
+            config.output_features, config.normalization_mapping, dataset_stats
+        )
+        self.unnormalize_outputs = Unnormalize(
+            config.output_features, config.normalization_mapping, dataset_stats
+        )
+
         self.dit_flow = DiTFlowModel(config)
 
         self.reset()
@@ -387,6 +398,7 @@ class DiTFlowPolicy(PreTrainedPolicy):
         """Predict a chunk of actions given environment observations."""
         batch = self.stack_queues_of_observations_to_batch(batch)
         actions = self.dit_flow.generate_actions(batch)
+        actions = self.unnormalize_outputs({ACTION: actions})[ACTION]
         return actions
 
     @torch.no_grad()
@@ -425,6 +437,8 @@ class DiTFlowPolicy(PreTrainedPolicy):
         "horizon" may not the best name to describe what the variable actually means, because this period is
         actually measured from the first observation which (if `n_obs_steps` > 1) happened in the past.
         """
+        batch = self.normalize_inputs(batch)
+
         # NOTE: for offline evaluation, we have action in the batch, so we need to pop it out
         if ACTION in batch:
             batch.pop(ACTION)
@@ -444,10 +458,12 @@ class DiTFlowPolicy(PreTrainedPolicy):
             self._queues[ACTION].extend(actions.transpose(0, 1))
 
         action = self._queues[ACTION].popleft()
+
         return action
 
     def forward(self, batch: dict[str, torch.Tensor]) -> dict[str, torch.Tensor]:
         """Run the batch through the model and compute the loss for training or validation."""
+        batch = self.normalize_inputs(batch)
         if self.config.image_features:
             batch = dict(
                 batch
@@ -455,6 +471,8 @@ class DiTFlowPolicy(PreTrainedPolicy):
             batch["observation.images"] = torch.stack(
                 [batch[key] for key in self.config.image_features], dim=-4
             )
+        batch = self.normalize_targets(batch)
+
         loss = self.dit_flow.compute_loss(batch)
         return loss, None
 

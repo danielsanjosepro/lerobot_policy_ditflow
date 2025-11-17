@@ -20,7 +20,7 @@ from lerobot.optim.optimizers import AdamConfig
 from lerobot.optim.schedulers import DiffuserSchedulerConfig
 from lerobot.configs.policies import PreTrainedConfig
 from lerobot.configs.types import NormalizationMode
-from lerobot.utils.constants import ACTION
+from lerobot.constants import ACTION
 
 
 @PreTrainedConfig.register_subclass("ditflow")
