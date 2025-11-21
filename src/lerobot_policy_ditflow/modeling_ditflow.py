@@ -489,15 +489,16 @@ class DiTFlowModel(nn.Module):
             else 0
         )
 
+        self.rgb_encoder: DiffusionRgbEncoder | nn.ModuleList
         if self.config.image_features:
             num_images = len(self.config.image_features)
             if self.config.use_separate_rgb_encoder_per_camera:
-                encoders = [DiffusionRgbEncoder(config) for _ in range(num_images)]
+                encoders = [DiffusionRgbEncoder(self.config) for _ in range(num_images)]
                 self.rgb_encoder = nn.ModuleList(encoders)
-                global_cond_dim += encoders[0].feature_dim * num_images
             else:
-                self.rgb_encoder = DiffusionRgbEncoder(config)
-                global_cond_dim += self.rgb_encoder.feature_dim * num_images
+                self.rgb_encoder = DiffusionRgbEncoder(self.config)
+            global_cond_dim += self.get_image_conditioning_dim()
+
         if self.config.env_state_feature:
             global_cond_dim += self.config.env_state_feature.shape[0]
 
@@ -575,42 +576,9 @@ class DiTFlowModel(nn.Module):
             if self.config.use_proprioceptive and self.config.robot_state_feature
             else []
         )
-        # Extract image features.
-        if self.config.image_features:
-            if self.config.use_separate_rgb_encoder_per_camera:
-                # Combine batch and sequence dims while rearranging to make the camera index dimension first.
-                images_per_camera = einops.rearrange(
-                    batch[OBS_IMAGES], "b s n ... -> n (b s) ..."
-                )
-                img_features_list = torch.cat(
-                    [
-                        encoder(images)
-                        for encoder, images in zip(
-                            self.rgb_encoder, images_per_camera, strict=True
-                        )
-                    ]
-                )
-                # Separate batch and sequence dims back out. The camera index dim gets absorbed into the
-                # feature dim (effectively concatenating the camera features).
-                img_features = einops.rearrange(
-                    img_features_list,
-                    "(n b s) ... -> b s (n ...)",
-                    b=batch_size,
-                    s=n_obs_steps,
-                )
-            else:
-                # Combine batch, sequence, and "which camera" dims before passing to shared encoder.
-                img_features = self.rgb_encoder(
-                    einops.rearrange(batch[OBS_IMAGES], "b s n ... -> (b s n) ...")
-                )
-                # Separate batch dim and sequence dim back out. The camera index dim gets absorbed into the
-                # feature dim (effectively concatenating the camera features).
-                img_features = einops.rearrange(
-                    img_features,
-                    "(b s n) ... -> b s (n ...)",
-                    b=batch_size,
-                    s=n_obs_steps,
-                )
+
+        img_features = self.encode_image_features(batch)
+        if img_features is not None:
             global_cond_feats.append(img_features)
 
         if self.config.env_state_feature:
@@ -618,6 +586,51 @@ class DiTFlowModel(nn.Module):
 
         # Concatenate features then flatten to (B, global_cond_dim).
         return torch.cat(global_cond_feats, dim=-1).flatten(start_dim=1)
+
+    def encode_image_features(
+        self, batch: dict[str, torch.Tensor]
+    ) -> torch.Tensor | None:
+        if not self.config.image_features:
+            return None
+
+        batch_size, n_obs_steps = batch[OBS_IMAGES].shape[:2]
+
+        if self.config.use_separate_rgb_encoder_per_camera:
+            # Combine batch and sequence dims while rearranging to make the camera index dimension first.
+            images_per_camera = einops.rearrange(
+                batch[OBS_IMAGES], "b s n ... -> n (b s) ..."
+            )
+            img_features_list = torch.cat(
+                [
+                    encoder(images)
+                    for encoder, images in zip(
+                        self.rgb_encoder, images_per_camera, strict=True
+                    )
+                ]
+            )
+            # Separate batch and sequence dims back out. The camera index dim gets absorbed into the
+            # feature dim (effectively concatenating the camera features).
+            img_features = einops.rearrange(
+                img_features_list,
+                "(n b s) ... -> b s (n ...)",
+                b=batch_size,
+                s=n_obs_steps,
+            )
+        else:
+            # Combine batch, sequence, and "which camera" dims before passing to shared encoder.
+            images_merged = einops.rearrange(
+                batch[OBS_IMAGES], "b s n ... -> (b s n) ..."
+            )
+            img_features = self.rgb_encoder(images_merged)
+            # Separate batch dim and sequence dim back out. The camera index dim gets absorbed into the
+            # feature dim (effectively concatenating the camera features).
+            img_features = einops.rearrange(
+                img_features,
+                "(b s n) ... -> b s (n ...)",
+                b=batch_size,
+                s=n_obs_steps,
+            )
+        return img_features
 
     def generate_actions(self, batch: dict[str, torch.Tensor]) -> torch.Tensor:
         """
@@ -703,3 +716,15 @@ class DiTFlowModel(nn.Module):
             loss = loss * in_episode_bound.unsqueeze(-1)
 
         return loss.mean()
+
+    def get_image_conditioning_dim(self) -> int:
+        if self.rgb_encoder is None:
+            raise ValueError(
+                "No image encoder found in the model, cannot get image conditioning dim."
+            )
+
+        num_images = len(self.config.image_features)
+        if self.config.use_separate_rgb_encoder_per_camera:
+            return num_images * self.rgb_encoder[0].feature_dim
+        else:
+            return num_images * self.rgb_encoder.feature_dim
