@@ -483,11 +483,22 @@ class DiTFlowModel(nn.Module):
         self.config = config
 
         # Build observation encoders (depending on which observations are provided).
-        global_cond_dim = (
-            self.config.robot_state_feature.shape[0]
-            if self.config.use_proprioceptive and self.config.robot_state_feature
-            else 0
-        )
+        global_cond_dim = 0
+
+        if self.config.use_proprioceptive:
+            if self.config.use_mlp_for_state_encoding:
+                dims = [
+                    self.config.robot_state_feature.shape[0]
+                ] + self.config.mlp_state_encoding_dims
+                layers = []
+                for i in range(len(dims) - 1):
+                    layers.append(nn.Linear(dims[i], dims[i + 1]))
+                    if i < len(dims) - 2:
+                        layers.append(_get_activation_fn("gelu"))
+                self.mlp_for_state_encoding = nn.Sequential(*layers)
+                global_cond_dim += self.config.mlp_state_encoding_dims[-1]
+            else:
+                global_cond_dim += self.config.robot_state_feature.shape[0]
 
         self.rgb_encoder: DiffusionRgbEncoder | nn.ModuleList
         if self.config.image_features:
@@ -562,7 +573,9 @@ class DiTFlowModel(nn.Module):
 
         # Sample prior.
         sample = self.velocity_net.sample(
-            global_cond, timesteps=self.num_inference_steps, generator=generator
+            global_cond,
+            timesteps=self.num_inference_steps,
+            generator=generator,
         )
         return sample
 
@@ -570,12 +583,14 @@ class DiTFlowModel(nn.Module):
         self, batch: dict[str, torch.Tensor]
     ) -> torch.Tensor:
         """Encode image features and concatenate them all together along with the state vector."""
-        batch_size, n_obs_steps = batch[OBS_STATE].shape[:2]
-        global_cond_feats = (
-            [batch[OBS_STATE]]
-            if self.config.use_proprioceptive and self.config.robot_state_feature
-            else []
-        )
+        global_cond_feats = []
+
+        if self.config.use_proprioceptive and self.config.robot_state_feature:
+            global_cond_feats.append(
+                self.mlp_for_state_encoding(batch[OBS_STATE])
+                if self.config.use_mlp_for_state_encoding
+                else batch[OBS_STATE]
+            )
 
         img_features = self.encode_image_features(batch)
         if img_features is not None:

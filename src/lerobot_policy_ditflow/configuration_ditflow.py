@@ -125,6 +125,8 @@ class DiTFlowConfig(PreTrainedConfig):
     use_group_norm: bool = True
     spatial_softmax_num_keypoints: int = 32
     use_separate_rgb_encoder_per_camera: bool = False
+    use_mlp_for_state_encoding: bool = False
+    mlp_state_encoding_dims: list[int] = field(default_factory=lambda: [256, 128])
 
     # Diffusion Transformer (DiT) parameters.
     frequency_embedding_dim: int = 256
