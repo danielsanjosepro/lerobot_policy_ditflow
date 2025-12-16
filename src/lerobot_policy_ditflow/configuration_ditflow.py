@@ -23,6 +23,9 @@ from lerobot.configs.types import NormalizationMode
 from lerobot.constants import ACTION
 
 
+logger = __import__("logging").getLogger(__name__)
+
+
 @PreTrainedConfig.register_subclass("ditflow")
 @dataclass
 class DiTFlowConfig(PreTrainedConfig):
@@ -216,7 +219,7 @@ class DiTFlowConfig(PreTrainedConfig):
             elif feature_to_exclude in self.output_features:
                 del self.output_features[feature_to_exclude]
             else:
-                raise ValueError(
+                logger.warning(
                     f"Feature '{feature_to_exclude}' not found in input or output features."
                     f" Available input features: {list(self.input_features.keys())}. "
                     f"Available output features: {list(self.output_features.keys())}."
