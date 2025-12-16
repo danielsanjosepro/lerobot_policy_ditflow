@@ -309,10 +309,20 @@ class _DiTNoiseNet(nn.Module):
         condition: torch.Tensor,
         timesteps: int = 100,
         generator: torch.Generator | None = None,
+        planner_trajectory: torch.Tensor | None = None,
+        guidance_scale: float = 2.0,
     ) -> torch.Tensor:
         # Use Euler integration to solve the ODE.
         batch_size, device = condition.shape[0], condition.device
-        x_0 = self.sample_noise(batch_size, device, generator)
+
+        with torch.no_grad():
+            x_0 = self.sample_noise(batch_size, device, generator)
+
+        if planner_trajectory is not None:
+            assert planner_trajectory.shape == x_0.shape, (
+                f"planner_trajectory shape {planner_trajectory.shape} does not match expected shape {x_0.shape}"
+            )
+
         dt = 1.0 / timesteps
         t_all = (
             torch.arange(timesteps, device=device)
@@ -324,9 +334,40 @@ class _DiTNoiseNet(nn.Module):
 
         for k in range(timesteps):
             t = t_all[:, k]
-            x_0 = x_0 + dt * self.forward(x_0, t, condition)
-            if self.clip_sample:
-                x_0 = torch.clamp(x_0, -self.clip_sample_range, self.clip_sample_range)
+
+            with torch.no_grad():
+                v = self.forward(x_0, t, condition)
+
+            if planner_trajectory is not None:
+                # Compute guidance gradient (requires gradients)
+                # Must use torch.enable_grad() to override any parent @torch.no_grad() contexts
+                grad = 0.0
+
+                with torch.enable_grad():
+                    # Create a fresh leaf tensor with requires_grad=True
+                    x_0.requires_grad_(True)
+
+                    guidance_weights = torch.tensor(
+                        [0.5**i for i in range(planner_trajectory.shape[1])],
+                        dtype=x_0.dtype,
+                        device=device,
+                    ).view(1, -1, 1)
+
+                    loss = (
+                        ((x_0 - planner_trajectory) ** 2 * guidance_weights)
+                        .sum(dim=1)
+                        .mean()
+                    )
+                    grad = torch.autograd.grad(loss, x_0)[0]
+                v = v - grad.detach()
+
+            with torch.no_grad():
+                x_0 = x_0 + dt * guidance_scale * v
+                if self.clip_sample:
+                    x_0 = torch.clamp(
+                        x_0, -self.clip_sample_range, self.clip_sample_range
+                    )
+
         return x_0
 
     def sample_noise(
@@ -543,6 +584,7 @@ class DiTFlowModel(nn.Module):
             )
         else:
             raise ValueError(f"Unknown {config.training_noise_sampling=}")
+        logger.info("DiTFlowModel initialized.")
 
     # ========= inference  ============
     def conditional_sample(
@@ -562,7 +604,7 @@ class DiTFlowModel(nn.Module):
 
         # Sample prior.
         sample = self.velocity_net.sample(
-            global_cond, timesteps=self.num_inference_steps, generator=generator
+            global_cond, timesteps=self.config.num_inference_steps, generator=generator
         )
         return sample
 
