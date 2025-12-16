@@ -529,7 +529,6 @@ class DiTFlowModel(nn.Module):
             clip_sample_range=config.clip_sample_range,
         )
 
-        self.num_inference_steps = config.num_inference_steps or 100
         self.training_noise_sampling = config.training_noise_sampling
         if config.training_noise_sampling == "uniform":
             self.noise_distribution = torch.distributions.Uniform(
@@ -574,7 +573,7 @@ class DiTFlowModel(nn.Module):
         # Sample prior.
         sample = self.velocity_net.sample(
             global_cond,
-            timesteps=self.num_inference_steps,
+            timesteps=self.config.num_inference_steps,
             generator=generator,
         )
         return sample
