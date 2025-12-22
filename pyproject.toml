@@ -1,6 +1,6 @@
 [project]
 authors = [{name = "Daniel San José Pro", email = "42489409+danielsanjosepro@users.noreply.github.com"}]
-dependencies = []
+dependencies = ["pudb"]
 name = "lerobot_policy_ditflow"
 requires-python = ">= 3.11"
 version = "0.1.0"
@@ -22,3 +22,4 @@ lerobot = { path = "../lerobot_external_policies_v2.1", extras = ["pusht"], edit
 [tool.pixi.dependencies]
 pynput = ">=1.8.1,<2"
 rerun-sdk = "==0.21.0"
+pudb = "*"

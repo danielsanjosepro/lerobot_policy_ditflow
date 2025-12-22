@@ -145,6 +145,11 @@ class DiTFlowConfig(PreTrainedConfig):
     # Inference
     num_inference_steps: int | None = 100
 
+    do_consistent_flow: bool = False
+    action_batch_size: int = 20
+    sampling_strategy: str = "deterministic"  # "deterministic" or "stochastic"
+    sampling_temperature: float = 5.0
+
     # Loss computation
     do_mask_loss_for_padding: bool = False
 

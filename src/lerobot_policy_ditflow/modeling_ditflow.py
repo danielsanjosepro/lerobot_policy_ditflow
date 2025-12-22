@@ -376,6 +376,7 @@ class DiTFlowPolicy(PreTrainedPolicy):
         )
 
         self.dit_flow = DiTFlowModel(config)
+        self.previous_action: torch.Tensor | None = None
 
         self.reset()
 
@@ -450,6 +451,15 @@ class DiTFlowPolicy(PreTrainedPolicy):
             batch[OBS_IMAGES] = torch.stack(
                 [batch[key] for key in self.config.image_features], dim=-4
             )
+
+        action = (
+            self._create_consistent_flow_action(batch)
+            if self.config.do_consistent_flow
+            else self._create_flow_action(batch)
+        )
+        return action
+
+    def _create_flow_action(self, batch: dict[str, torch.Tensor]) -> torch.Tensor:
         # NOTE: It's important that this happens after stacking the images into a single key.
         self._queues = populate_queues(self._queues, batch)
 
@@ -458,8 +468,131 @@ class DiTFlowPolicy(PreTrainedPolicy):
             self._queues[ACTION].extend(actions.transpose(0, 1))
 
         action = self._queues[ACTION].popleft()
-
         return action
+
+    def _create_consistent_flow_action(
+        self, batch: dict[str, torch.Tensor]
+    ) -> torch.Tensor:
+        batch_size = batch[OBS_STATE].shape[0]
+
+        batch = self._expand_batch(batch)
+
+        self._queues = populate_queues(self._queues, batch)
+
+        actions = self.predict_action_chunk(batch)
+
+        actions = einops.rearrange(
+            actions,
+            "(a b) h d -> b a h d",
+            a=self.config.action_batch_size,
+            b=batch_size,
+        )
+
+        if self.previous_action is None:
+            # Store only the first action sequence for future reference
+            self.previous_action = actions[:, 0, ...]
+            # action = self.unnormalize_outputs({ACTION: self.previous_action[:, 0, :]})[
+            #     ACTION
+            # ]
+            return self.previous_action[:, 0, :]
+
+        action = self._select_action_based_on_previous(actions, batch_size)
+        self.previous_action = action
+
+        # action = self.unnormalize_outputs({ACTION: action[:, 0, :]})[ACTION]
+        return action[:, 0, :]
+
+    def _expand_batch(self, batch: dict[str, torch.Tensor]) -> dict[str, torch.Tensor]:
+        """Expand batch dimension for action_batch_size.
+
+        Repeats each observation action_batch_size times to generate multiple candidates.
+
+        Args:
+            batch: Original batch dictionary
+
+        Returns:
+            Expanded batch dictionary
+        """
+        expanded_batch = {}
+
+        for key, value in batch.items():
+            if not isinstance(value, torch.Tensor):
+                continue
+
+            # Shape: (B, ...) -> (action_batch_size, B, ...) -> (action_batch_size * B, ...)
+            expanded_batch[key] = (
+                value.unsqueeze(0)
+                .expand(
+                    self.config.action_batch_size,
+                    -1,
+                    *(-1 for _ in value.shape[1:]),
+                )
+                .reshape(-1, *value.shape[1:])
+            )
+
+        return expanded_batch
+
+    def _select_action_based_on_previous(
+        self,
+        action_candidates_full: torch.Tensor,
+        batch_size: int,
+    ) -> torch.Tensor:
+        """TODO: Docstring."""
+        if self.previous_action is None:
+            raise ValueError("previous_action is None, cannot select based on it.")
+
+        # TODO: Verify dimensions
+        previous_action = self.previous_action[
+            :,
+            1:,
+            :,
+        ]
+
+        action_candidates = action_candidates_full[
+            :,
+            :,
+            :-1,
+            :,
+        ]
+
+        # Compute L2 distances: (B, action_batch_size, remaining_horizon, action_dim)
+        # Sum over action dimension, then over time dimension
+        distances = torch.norm(
+            action_candidates - previous_action.unsqueeze(1), dim=-1
+        )  # (B, action_batch_size, remaining_horizon)
+        distances = torch.sum(distances, dim=-1)  # (B, action_batch_size)
+
+        # Select indices based on sampling strategy
+        if self.config.action_batch_size == 1:
+            indices = torch.zeros(
+                batch_size, dtype=torch.long, device=action_candidates.device
+            )
+        elif self.config.sampling_strategy == "deterministic":
+            indices = torch.argmin(distances, dim=-1)  # (B,)
+        elif self.config.sampling_strategy == "stochastic":
+            # Convert distances to similarity scores
+            mean_distance = torch.mean(distances, dim=-1, keepdim=True)
+            std_distance = torch.std(distances, dim=-1, keepdim=True) + 1e-8
+
+            similarity = torch.exp(
+                -(distances - mean_distance)
+                / (std_distance * self.config.sampling_temperature)
+            )
+            probabilities = similarity / similarity.sum(dim=-1, keepdim=True)
+
+            indices = torch.multinomial(probabilities, num_samples=1).squeeze(
+                -1
+            )  # (B,)
+        else:
+            raise ValueError(
+                f"Unknown batch action sampling strategy: {self.config.sampling_strategy}"
+            )
+
+        selected_actions = action_candidates_full[
+            torch.arange(batch_size, device=action_candidates.device), indices
+        ]
+
+        return selected_actions
 
     def forward(self, batch: dict[str, torch.Tensor]) -> dict[str, torch.Tensor]:
         """Run the batch through the model and compute the loss for training or validation."""
