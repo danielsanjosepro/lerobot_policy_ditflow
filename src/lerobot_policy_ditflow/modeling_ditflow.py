@@ -11,6 +11,9 @@
 import copy
 from collections import deque
 import logging
+from math import exp
+import math
+from typing import Callable
 
 import einops
 import numpy as np
@@ -303,72 +306,225 @@ class _DiTNoiseNet(nn.Module):
         )  # [T, B, hidden_dim] -> [T, B, adim]
         return eps_out.transpose(0, 1)  # [T, B, adim] -> [B, T, adim]
 
-    @torch.no_grad()
     def sample(
         self,
         condition: torch.Tensor,
-        timesteps: int = 100,
+        timesteps: int = 5,
         generator: torch.Generator | None = None,
-        planner_trajectory: torch.Tensor | None = None,
-        guidance_scale: float = 2.0,
+        reference_trajectory: torch.Tensor | None = None,
+        guidance_scale: float = 5.0,
     ) -> torch.Tensor:
+        """Sample actions using Euler integration to solve the ODE.
+
+        Args:
+            condition: Global conditioning tensor (B, cond_dim).
+            timesteps: Number of integration steps.
+            generator: Random number generator for reproducibility.
+            reference_trajectory: a trajectory used for guidance (B, ac_chunk, ac_dim).
+                Could be either a previously generated trajectory or a desired trajectory to follow.
+            guidance_scale: Maximum guidance scale for prior trajectory guidance.
+            n_action_steps: Number of action steps executed since the prior trajectory was generated.
+                Used to shift the prior trajectory appropriately.
+
+        Returns:
+            Sampled action trajectory (B, ac_chunk, ac_dim).
+        """
         # Use Euler integration to solve the ODE.
         batch_size, device = condition.shape[0], condition.device
 
         with torch.no_grad():
-            x_0 = self.sample_noise(batch_size, device, generator)
+            x_t = self.sample_noise(batch_size, device, generator)
 
-        if planner_trajectory is not None:
-            assert planner_trajectory.shape == x_0.shape, (
-                f"planner_trajectory shape {planner_trajectory.shape} does not match expected shape {x_0.shape}"
+        if reference_trajectory is not None:
+            assert reference_trajectory.shape == x_t.shape, (
+                f"reference_trajectory shape {reference_trajectory.shape} does not match expected shape {x_t.shape}"
             )
 
         dt = 1.0 / timesteps
-        t_all = (
-            torch.arange(timesteps, device=device)
-            .float()
-            .unsqueeze(0)
-            .expand(batch_size, timesteps)
-            / timesteps
-        )
+        with torch.no_grad():
+            t_all = (
+                torch.arange(timesteps, device=device)
+                .float()
+                .unsqueeze(0)
+                .expand(batch_size, timesteps)
+                / timesteps
+            )
 
         for k in range(timesteps):
             t = t_all[:, k]
 
-            with torch.no_grad():
-                v = self.forward(x_0, t, condition)
+            if reference_trajectory is not None:
+                v = self._apply_action_guidance(
+                    original_velocity=lambda x: self.forward(x, t, condition),
+                    x_t=x_t,
+                    reference_trajectory=reference_trajectory,
+                    t=t,
+                    guidance_scale=guidance_scale,
+                )
+            else:
+                with torch.no_grad():
+                    v = self.forward(x_t, t, condition)
+            x_t = x_t + dt * v
 
-            if planner_trajectory is not None:
-                # Compute guidance gradient (requires gradients)
-                # Must use torch.enable_grad() to override any parent @torch.no_grad() contexts
-                grad = 0.0
+            if self.clip_sample:
+                x_t = torch.clamp(x_t, -self.clip_sample_range, self.clip_sample_range)
 
-                with torch.enable_grad():
-                    # Create a fresh leaf tensor with requires_grad=True
-                    x_0.requires_grad_(True)
+            x_t = x_t.detach()
 
-                    guidance_weights = torch.tensor(
-                        [0.5**i for i in range(planner_trajectory.shape[1])],
-                        dtype=x_0.dtype,
-                        device=device,
-                    ).view(1, -1, 1)
+        return x_t
 
-                    loss = (
-                        ((x_0 - planner_trajectory) ** 2 * guidance_weights)
-                        .sum(dim=1)
-                        .mean()
-                    )
-                    grad = torch.autograd.grad(loss, x_0)[0]
-                v = v - grad.detach()
+    def _apply_action_guidance(
+        self,
+        original_velocity: Callable[[torch.Tensor], torch.Tensor],
+        x_t: torch.Tensor,
+        reference_trajectory: torch.Tensor,
+        t: torch.Tensor,
+        guidance_scale: float,
+        guidance_method: str = "rtc-guidance",
+    ):
+        """Apply temporal consistency guidance using the prior trajectory.
 
-            with torch.no_grad():
-                x_0 = x_0 + dt * guidance_scale * v
-                if self.clip_sample:
-                    x_0 = torch.clamp(
-                        x_0, -self.clip_sample_range, self.clip_sample_range
-                    )
+        This method modifies the velocity field to guide the current sample toward matching
+        the previously predicted trajectory, shifted by n_action_steps to account for
+        actions that have already been executed.
 
-        return x_0
+        Args:
+            original_velocity: Function to compute velocity from state.
+            x_t: Current state in the flow trajectory (B, ac_chunk, ac_dim).
+            reference_trajectory: Reference trajectory (either previously generated or a trajectory to follow) (B, ac_chunk, ac_dim).
+            t: Current timestep in [0, 1] (B,).
+            guidance_scale: Maximum guidance scale.
+
+        Returns:
+            Modified velocity with guidance applied (B, ac_chunk, ac_dim).
+        """
+        device = x_t.device
+
+        x_t = x_t.clone().detach()
+
+        guidance_weights = self._get_guidance_weights(
+            batch_size=x_t.shape[0],
+            seq_len=x_t.shape[1],
+            device=device,
+            weights_type="exponential",
+        )
+        # logger.info(f"guidance_weights: {guidance_weights}")
+        assert reference_trajectory.shape == x_t.shape, (
+            f"Reference trajectory shape {reference_trajectory.shape} does not match x_t shape {x_t.shape}"
+        )
+        args = (
+            original_velocity,
+            x_t,
+            reference_trajectory,
+            t,
+            guidance_weights,
+            guidance_scale,
+            device,
+        )
+        if guidance_method == "self-guided":
+            v = self.__get_self_guided_guidance(*args)
+        elif guidance_method == "my-guidance":
+            v = self.__get_my_guidance(*args)
+        else:
+            v = self.__get_rtc_guidance(*args)
+
+        return v
+
+    def __get_self_guided_guidance(
+        self,
+        original_velocity,
+        x_t,
+        reference_trajectory,
+        t,
+        guidance_weights,
+        guidance_scale,
+        device,
+    ):
+        v = original_velocity(x_t)
+        with torch.enable_grad():
+            x_t.requires_grad_(True)
+            error = (
+                (((reference_trajectory - x_t) ** 2) * guidance_weights)
+                .sum(dim=1)
+                .mean()
+            )
+            # logger.info(f"Guidance error: {error}")
+            correction = torch.autograd.grad(error, x_t, retain_graph=False)[0]
+            # logger.info(f"Guidance correction: {correction}")
+        return v - guidance_scale * correction
+
+    def __get_my_guidance(
+        self,
+        original_velocity,
+        x_t,
+        reference_trajectory,
+        t,
+        guidance_weights,
+        guidance_scale,
+        device,
+    ):
+        with torch.enable_grad():
+            x_t.requires_grad_(True)
+            v = original_velocity(x_t)
+            # We compute an estimate of the last denoised sample x_1 from x_t and v.
+            x_1 = x_t + (1 - t[0]) * v
+            error = (reference_trajectory - x_1) ** 2 * guidance_weights
+
+            grad_outputs = error.clone().detach()
+
+            correction = torch.autograd.grad(
+                x_1, x_t, grad_outputs=grad_outputs, retain_graph=False
+            )[0]
+
+        final_guidance_scale = guidance_scale
+        v.clone().detach()
+
+        return v - final_guidance_scale * correction
+
+    def __get_rtc_guidance(
+        self,
+        original_velocity,
+        x_t,
+        reference_trajectory,
+        t,
+        guidance_weights,
+        guidance_scale,
+        device,
+    ):
+        with torch.enable_grad():
+            x_t.requires_grad_(True)
+            v = original_velocity(x_t)
+            # We compute an estimate of the last denoised sample x_1 from x_t and v.
+            x_1 = x_t + (1 - t[0]) * v
+            error = (reference_trajectory - x_1) * guidance_weights
+            # logger.info(f"Guidance error: {error}")
+
+            grad_outputs = error.clone().detach()
+            correction = torch.autograd.grad(
+                x_1, x_t, grad_outputs=grad_outputs, retain_graph=False
+            )[0]
+            # logger.info(f"Guidance correction: {correction}")
+
+        sigma_d_squared = torch.as_tensor(1.0, device=device)
+        max_guidance_scale = torch.as_tensor(guidance_scale, device=device)
+        squared_one_minus_t = (1.0 - t) ** 2
+        inv_r_squared = (squared_one_minus_t + t**2 * sigma_d_squared) / (
+            squared_one_minus_t * sigma_d_squared
+        )
+        time_dependent_guidance_scale = torch.nan_to_num(
+            (1 - t) / t,
+            posinf=guidance_scale,
+        )
+        time_dependent_guidance_scale = torch.nan_to_num(
+            time_dependent_guidance_scale * inv_r_squared,
+            posinf=guidance_scale,
+        )
+        final_guidance_scale = torch.minimum(
+            time_dependent_guidance_scale, max_guidance_scale
+        ).view(-1, 1, 1)
+
+        # final_guidance_scale = guidance_scale
+        return v + final_guidance_scale * correction
 
     def sample_noise(
         self, batch_size: int, device, generator: torch.Generator | None = None
@@ -376,6 +532,50 @@ class _DiTNoiseNet(nn.Module):
         return torch.randn(
             batch_size, self.ac_chunk, self.ac_dim, device=device, generator=generator
         )
+
+    def _get_guidance_weights(
+        self,
+        batch_size: int,
+        seq_len: int,
+        device: torch.device,
+        make_ones_len: int = 4,
+        make_zero_len: int = 2,
+        weights_type: str = "exponential",
+    ) -> torch.Tensor:
+        if weights_type == "ones":
+            return torch.ones(
+                (batch_size, seq_len, 1), dtype=torch.float32, device=device
+            )
+        if weights_type == "uniform":
+            return torch.ones(
+                (batch_size, seq_len, 1), dtype=torch.float32, device=device
+            )
+        if weights_type == "exponential":
+            # The weights should be:
+            # [1, 1, ..., 1, exp(-1/4), exp(-2/4), exp(-3/4), ..., exp(-(N- make_zero_len - make_ones_len)/4)]
+            weights = (
+                torch.exp(
+                    -(
+                        torch.arange(seq_len, dtype=torch.float32, device=device)
+                        + 1
+                        - make_ones_len
+                    )
+                    / 4.0
+                )
+                .unsqueeze(0)
+                .unsqueeze(-1)
+            )
+            weights[:, :make_ones_len, :] = 0.75
+            weights[:, -make_zero_len:, :] = 0.0
+            return weights
+
+        if weights_type == "zeros":
+            weights = torch.zeros(
+                (batch_size, seq_len, 1), dtype=torch.float32, device=device
+            )
+            return weights
+
+        raise ValueError(f"Unknown guidance weights type: {weights_type}")
 
 
 class DiTFlowPolicy(PreTrainedPolicy):
@@ -727,6 +927,8 @@ class DiTFlowModel(nn.Module):
             )
         else:
             raise ValueError(f"Unknown {config.training_noise_sampling=}")
+
+        self.reference_trajectory: torch.Tensor | None = None
         logger.info("DiTFlowModel initialized.")
 
     # ========= inference  ============
@@ -735,6 +937,7 @@ class DiTFlowModel(nn.Module):
         batch_size: int,
         global_cond: torch.Tensor | None = None,
         generator: torch.Generator | None = None,
+        reference_trajectory: torch.Tensor | None = None,
     ) -> torch.Tensor:
         device = get_device_from_parameters(self)
         dtype = get_dtype_from_parameters(self)
@@ -748,8 +951,12 @@ class DiTFlowModel(nn.Module):
         # Sample prior.
         sample = self.velocity_net.sample(
             global_cond,
-            timesteps=self.config.num_inference_steps,
+            timesteps=self.config.num_inference_steps
+            if self.config.num_inference_steps < 100
+            else 5,
             generator=generator,
+            reference_trajectory=reference_trajectory,
+            guidance_scale=self.config.guidance_scale,
         )
         return sample
 
@@ -840,7 +1047,25 @@ class DiTFlowModel(nn.Module):
         global_cond = self._prepare_global_conditioning(batch)  # (B, global_cond_dim)
 
         # run sampling
-        actions = self.conditional_sample(batch_size, global_cond=global_cond)
+        use_action_guidance = True  # TODO: make this configurable
+
+        actions = self.conditional_sample(
+            batch_size,
+            global_cond=global_cond,
+            reference_trajectory=None
+            if not use_action_guidance
+            else self.reference_trajectory,
+        )
+
+        if use_action_guidance:
+            self.reference_trajectory = actions.clone().detach()
+            trajectory_left_over_after_execution = self.reference_trajectory[
+                :, self.config.n_action_steps :, :
+            ]
+            self.reference_trajectory = torch.zeros_like(actions)
+            self.reference_trajectory[
+                :, : trajectory_left_over_after_execution.shape[1], :
+            ] = trajectory_left_over_after_execution
 
         # Extract `n_action_steps` steps worth of actions (from the current observation).
         start = n_obs_steps - 1

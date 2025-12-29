@@ -145,10 +145,12 @@ class DiTFlowConfig(PreTrainedConfig):
     # Inference
     num_inference_steps: int | None = 100
 
+    # Guidance Parameters
     do_consistent_flow: bool = False
-    action_batch_size: int = 20
+    action_batch_size: int = 100
     sampling_strategy: str = "deterministic"  # "deterministic" or "stochastic"
     sampling_temperature: float = 5.0
+    guidance_scale: float = 5.0
 
     # Loss computation
     do_mask_loss_for_padding: bool = False
@@ -178,6 +180,11 @@ class DiTFlowConfig(PreTrainedConfig):
         if self.training_noise_sampling not in ("uniform", "beta"):
             raise ValueError(
                 f"`training_noise_sampling` must be either 'uniform' or 'beta'. Got {self.training_noise_sampling}."
+            )
+
+        if self.guidance_scale > 0.0 and self.n_action_steps != 1:
+            logger.warning(
+                "`guidance_scale` > 0.0 is only supported for `n_action_steps` == 1."
             )
 
     def get_optimizer_preset(self) -> AdamConfig:
